@@ -1,0 +1,62 @@
+clube-desbravadores/
+├── src/
+│   ├── application/
+│   │   ├── services/
+│   │   │   ├── hashingService.ts          # Serviço para criptografar senhas
+│   │   │   ├── emailService.ts            # Serviço para envio de emails
+│   │   │   └── fileUploadService.ts       # Serviço para upload de fotos
+│   │   ├── use-cases/
+│   │   │   ├── auth/
+│   │   │   │   ├── registerUseCase.ts    # Caso de uso para o cadastro de usuários
+│   │   │   │   ├── loginUseCase.ts       # Caso de uso para login
+│   │   │   │   ├── sendVerificationCodeUseCase.ts  # Envio do código de verificação
+│   │   │   │   ├── verifyVerificationCodeUseCase.ts  # Validação do código de verificação
+│   │   │   │   └── refreshTokenUseCase.ts          # Caso de uso para refresh token
+│   │   │   ├── user/
+│   │   │   │   ├── getUserProfileUseCase.ts  # Caso de uso para pegar o perfil do usuário
+│   │   │   │   ├── updateUserProfileUseCase.ts  # Caso de uso para atualizar o perfil
+│   │   │   │   └── deleteUserUseCase.ts   # Caso de uso para deletar um usuário
+│   │   │   ├── unit/
+│   │   │   │   ├── createUnitUseCase.ts   # Caso de uso para criação de unidades
+│   │   │   │   └── getUnitsUseCase.ts     # Caso de uso para listar unidades
+│   │   │   └── specialty/
+│   │   │       ├── createSpecialtyUseCase.ts # Caso de uso para criar especialidade
+│   │   │       ├── approveSpecialtyUseCase.ts # Aprovação de especialidade
+│   │   │       └── rejectSpecialtyUseCase.ts  # Rejeição de especialidade
+│   ├── domain/
+│   │   ├── models/
+│   │   │   ├── User.ts            # Modelo de dados para o usuário
+│   │   │   ├── Unit.ts            # Modelo de dados para unidades
+│   │   │   ├── Specialty.ts       # Modelo de dados para especialidades
+│   │   │   └── Class.ts           # Modelo de dados para classes
+│   │   └── repositories/
+│   │       ├── UserRepository.ts  # Interface para repositório de usuário
+│   │       ├── UnitRepository.ts  # Interface para repositório de unidades
+│   │       └── SpecialtyRepository.ts # Interface para repositório de especialidades
+│   ├── infrastructure/
+│   │   ├── database/
+│   │   │   ├── db.ts                 # Configuração do banco de dados
+│   │   │   ├── UserRepositoryImpl.ts  # Implementação do repositório de usuário
+│   │   │   ├── UnitRepositoryImpl.ts  # Implementação do repositório de unidades
+│   │   │   └── SpecialtyRepositoryImpl.ts  # Implementação do repositório de especialidades
+│   │   ├── routes/
+│   │   │   ├── authRoutes.ts           # Rotas para autenticação
+│   │   │   ├── userRoutes.ts           # Rotas para usuários
+│   │   │   └── unitRoutes.ts           # Rotas para unidades
+│   │   ├── middleware/
+│   │   │   ├── authMiddleware.ts       # Middleware de autenticação
+│   │   │   └── authorizationMiddleware.ts  # Middleware de autorização
+│   ├── interfaces/
+│   │   ├── controllers/
+│   │   │   ├── AuthController.ts       # Controlador de autenticação
+│   │   │   ├── UserController.ts       # Controlador de usuários
+│   │   │   └── UnitController.ts       # Controlador de unidades
+│   │   └── routes/
+│   │       ├── authRoutes.ts           # Rotas de autenticação
+│   │       ├── userRoutes.ts           # Rotas de usuários
+│   │       └── unitRoutes.ts           # Rotas de unidades
+├── .env                               # Variáveis de ambiente
+├── .gitignore                         # Arquivo para ignorar arquivos no Git
+├── tsconfig.json                      # Configuração do TypeScript
+├── package.json                       # Gerenciador de pacotes
+└── README.md                          # Documentação do projeto
