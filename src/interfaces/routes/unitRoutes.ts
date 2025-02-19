@@ -7,8 +7,6 @@ import { authorize } from '../../interfaces/middlewares/AuthorizeMiddleware';
 
 const router: Router = express.Router();
 
-// Rotas de Unit
-
 // Criar Unidade
 router.post('/createUnit', 
   authenticate,
@@ -43,28 +41,28 @@ router.delete('/deleteunit/:id',
 ); 
 
 // Adicionar conselheiro
-router.post('/counselorinunit:id/counselors', 
+router.post('/:unitId/counselors', 
   authenticate,
   authorize(['admin', 'director']),
   unitController.addCounselorToUnit
 );
 
 // Adicionar dbv
-router.post('/dbvinunit:id/dbvs',   
+router.post('/:unitId/dbvs',   
   authenticate,
   authorize(['admin', 'director']),
   unitController.addDbvToUnit
 ); 
 
-// Remover conselheiro
-router.delete('/removeconselor:id/counselors/:userId', 
+// Remover conselheiro de unidade
+router.delete("/removecounselor/:unitId/counselor/:userId", 
   authenticate,
   authorize(['admin', 'director']),
   unitController.removeCounselorFromUnit
 ); 
 
-// Remover dbv
-router.delete('/removedbv:id/dbvs/:userId', 
+// Remover dbv de uma unidade
+router.delete("/removedbv/:unitId/dbv/:userId", 
   authenticate,
   authorize(['admin', 'director']),
   unitController.removeDbvFromUnit

@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import * as models from './models';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,6 +14,12 @@ const sequelize = new Sequelize(process.env.DATABASE_URL as string, {
     },
   },
 });
+
+// Object.values(models).forEach((model: any) => {
+//   if(model.init){
+//     model.init(sequelize);
+//   }
+// });
 
 export default sequelize;
 

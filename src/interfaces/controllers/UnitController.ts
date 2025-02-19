@@ -1,19 +1,19 @@
-
 import { Request, Response } from 'express';
 
 import { unitRepository } from '../../infrastructure/database/repositories/UnitRepository';
+import { UserRepository } from '../../infrastructure/database/repositories/UserRepository';
+
 
 // Use cases
 import { createUnitUseCase } from '../../application/usecases/units/createUnitUseCase';
 import { getAllUnitUseCase } from '../../application/usecases/units/getAllUnitUseCase';
-import { getOneUnitUseCase } from '../../application/usecases/units/GetOneUnitUseCase';
+import { getOneUnitUseCase } from '../../application/usecases/units/getOneUnitUseCase';
 import { updateUnitUseCase } from '../../application/usecases/units/updateUnitUseCase';
 import { deleteUnitUseCae } from '../../application/usecases/units/deleteUnitUseCase';
 import { addCounselorToUnitUseCase } from '../../application/usecases/units/addCounselorToUnitUseCase';
 import { addDbvToUnitUseCase } from '../../application/usecases/units/addDbvToUnitUseCase';
 import { removeCounselorFromUnitUseCase } from '../../application/usecases/units/removeCounselorFromUnitUseCase';
 import { removeDbvFromUnitUseCase } from '../../application/usecases/units/removeDbvFromUnitUseCase';
-
 
 export const unitController = {
 
@@ -95,10 +95,10 @@ export const unitController = {
 
   // Adicionar Conselheiro
   async addCounselorToUnit(req: Request, res: Response): Promise<void>  {
-    const { id } = req.params;
+    const { unitId } = req.params;
     const { userId } = req.body;
     try {
-      const result = await addCounselorToUnitUseCase(id, userId, unitRepository);
+      const result = await addCounselorToUnitUseCase(unitId, userId, unitRepository, UserRepository);
       res.json({success: true, result});
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -107,10 +107,10 @@ export const unitController = {
 
   // Adicionar Desbravador
   async addDbvToUnit(req: Request, res: Response): Promise<void>  {
-    const { id } = req.params;
+    const { unitId } = req.params;
     const { userId } = req.body;
     try {
-      const result = await addDbvToUnitUseCase(id, userId, unitRepository);
+      const result = await addDbvToUnitUseCase(unitId, userId, unitRepository, UserRepository);
       res.json({success: true, result});
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -119,8 +119,9 @@ export const unitController = {
 
   // Remover conselheiro
   async removeCounselorFromUnit(req: Request, res: Response): Promise<void>  {
+    const { unitId, userId } = req.params
     try {
-      await removeCounselorFromUnitUseCase(req.params.userId, unitRepository);
+      await removeCounselorFromUnitUseCase(unitId, userId, unitRepository);
       res.status(204).send({ success: true });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -128,8 +129,9 @@ export const unitController = {
   },
 
   async removeDbvFromUnit(req: Request, res: Response): Promise<void>  {
+    const { unitId, userId } = req.params
     try {
-      await removeDbvFromUnitUseCase(req.params.userId, unitRepository);
+      await removeDbvFromUnitUseCase(unitId, userId, unitRepository, UserRepository);
       res.status(204).send({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

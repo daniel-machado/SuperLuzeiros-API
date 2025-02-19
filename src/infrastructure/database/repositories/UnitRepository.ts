@@ -12,6 +12,13 @@ export interface IUnitRepository {
   updateUnit(unitId: string, name?: string, photo?: string): Promise<any>;
   deleteUnit(unitId: string): Promise<any>;
   addCounselorToUnit(unitId: string, userId: string): Promise<any>;
+
+  existingCounselorUnitActual(unitId: string, userId: string): Promise<any>;
+  existeOtherUnit(userId: string):Promise<any>;
+  
+  existingDBVUnitActual(unitId: string, userId: string): Promise<any>;
+  existeDBVOtherUnit(userId: string):Promise<any>;
+
   addDbvToUnit(unitId: string, userId: string): Promise<any>;
   removeCounselorFromUnit(userId: string): Promise<any>;
   removeDbvFromUnit(userId: string): Promise<any>;
@@ -25,25 +32,69 @@ export const unitRepository = {
 
   // Buscar todas as unidade
   getAllUnits: async (): Promise<any> => {
-    return await Unit.findAll();
-    // return await Unit.findAll({
-    //   include: [
-    //     { model: UnitCounselor, as: 'counselors' },
-    //     { model: UnitDbv, as: 'dbvs' },
-    //   ],
-    // });
+    return await Unit.findAll({
+      //attributes: ["id", "name"], // Seleciona os atributos da unidade
+      include: [
+        { 
+          model: UnitCounselor, 
+          as: "counselors", 
+          include: [
+            {
+              model: User,
+              as: "counselor", // Nome do alias definido no relacionamento
+              attributes: ["id", "name"], // Busca o nome e o id do User associado
+            },
+          ],
+          attributes: ["id"]
+        },
+        { 
+          model: UnitDbv, 
+          as: "dbvs",
+          include: [
+            {
+              model: User,
+              as: "dbv", // Se UnitDbv também se relaciona com User
+              attributes: ["id", "name"], 
+            },
+          ],
+          attributes: ["id"]
+        },
+      ],
+    });
   },
-
+  
   // Buscar unidade por ID
   getUnitById: async (idUnit: string): Promise<any> => {
-    return await Unit.findByPk(idUnit)
-    // return await Unit.findByPk(idUnit, {
-    //   include: [
-    //     { model: UnitCounselor, as: 'counselors' },
-    //     { model: UnitDbv, as: 'dbvs' },
-    //   ],
-    // });
+    return await Unit.findByPk(idUnit, {
+      include: [
+        { 
+          model: UnitCounselor, 
+          as: "counselors", 
+          include: [
+            {
+              model: User,
+              as: "counselor", // Nome do alias definido no relacionamento
+              attributes: ["id", "name"], // Busca o nome e o id do User associado
+            },
+          ],
+          attributes: ["id"]
+        },
+        { 
+          model: UnitDbv, 
+          as: "dbvs",
+          include: [
+            {
+              model: User,
+              as: "dbv", // Se UnitDbv também se relaciona com User
+              attributes: ["id", "name"], 
+            },
+          ],
+          attributes: ["id"]
+        },
+      ],
+    });
   },
+  
 
   // Atualizar Unidade
   updateUnit: async (unitId: string, name?: string, photo?: string): Promise<any> => {
@@ -59,33 +110,43 @@ export const unitRepository = {
 
   // Adicionar conselheiro a uma unidade
   addCounselorToUnit: async (unitId: string, userId: string): Promise<any> => {
-    const user = await User.findByPk(userId);
-    if (!user || user.role !== 'counselor') {
-      throw new Error('Usuário não é um conselheiro válido');
-    }
-
-    // Verificar se já está em outra unidade
-    const existing = await UnitCounselor.findOne({ where: { userId } });
-    if (existing) {
-      throw new Error('Usuário já está em outra unidade');
-    }
-
     return await UnitCounselor.create({ unitId, userId });
   },
 
+  // Verifica se o usuário já é conselheiro da unida passada
+  existingCounselorUnitActual: async(unitId: string, userId: string): Promise<any> => {
+    const existingCounselor = await UnitCounselor.findOne({
+      where: { unitId, userId },
+    });
+    return existingCounselor
+  },
+
+ // Verificar se já está em outra unidade
+  existeOtherUnit: async(userId: string):Promise<any> => {
+    const existing = await UnitCounselor.findOne({ 
+      where: { userId } 
+    });
+    return existing;
+  },
+
+    // Verifica se o usuário já é dbv da unidade passada
+    existingDBVUnitActual: async(unitId: string, userId: string): Promise<any> => {
+      const existingCounselor = await UnitDbv.findOne({
+        where: { unitId, userId },
+      });
+      return existingCounselor
+    },
+  
+    // Verificar se já está em outra unidade
+    existeDBVOtherUnit: async(userId: string):Promise<any> => {
+      const existing = await UnitDbv.findOne({ 
+        where: { userId } 
+      });
+      return existing;
+    },
+
   // Adicionar desbravador a uma unidade
   addDbvToUnit: async (unitId: string, userId: string): Promise<any> => {
-    const user = await User.findByPk(userId);
-    if (!user || user.role !== 'dbv') {
-      throw new Error('Usuário não é um desbravador válido');
-    }
-
-    // Verificar se já está em outra unidade
-    const existing = await UnitDbv.findOne({ where: { userId } });
-    if (existing) {
-      throw new Error('Usuário já está em outra unidade');
-    }
-
     return await UnitDbv.create({ unitId, userId });
   },
 

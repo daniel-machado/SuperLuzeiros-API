@@ -4,8 +4,6 @@ import sequelize from '../sequelize';
 import { Unit } from './Unit';
 import { User } from './User';
 
-
-// Relacionamento com desbravadores (só podem estar em UMA unidade)
 export class UnitDbv extends Model {
   public id!: number;
   public unitId!: number;
@@ -57,9 +55,9 @@ UnitDbv.init(
   }
 );
 
-// Relacionamento com o modelo Unit e User
-UnitDbv.belongsTo(Unit, { foreignKey: 'unitId', as: 'unit' });
-UnitDbv.belongsTo(User, { foreignKey: 'userId', as: 'dbv' });
+// // Relacionamento com o modelo Unit e User
+// UnitDbv.belongsTo(Unit, { foreignKey: 'unitId', as: 'unit' });
+// UnitDbv.belongsTo(User, { foreignKey: 'userId', as: 'dbv' });
 
 
 

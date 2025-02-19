@@ -12,6 +12,10 @@ import sequelize from './infrastructure/database/sequelize'
 import authRoutes from './interfaces/routes/authRoutes';
 import unitRoutes from './interfaces/routes/unitRoutes';
 import userRoutes from './interfaces/routes/userRoutes';
+import unitEvaluationRoutes from './interfaces/routes/unitEvaluationRoutes';
+import unitQuestionsRoutes from './interfaces/routes/unitQuestionsRoutes';
+import unitAnswerRoutes from './interfaces/routes/unitAnswerRoutes';
+import unitRankingRoutes from './interfaces/routes/unitRankingRoutes';
 
 dotenv.config();
 
@@ -32,6 +36,10 @@ sequelize.authenticate().then(() => {
     app.use('/api/auth', authRoutes);
     app.use('/api/unit', unitRoutes);
     app.use('/api/user', userRoutes);
+    app.use('/api/unit-evaluation', unitEvaluationRoutes);
+    app.use('/api/unit-questions', unitQuestionsRoutes);
+    app.use('/api/unit-answer', unitAnswerRoutes);
+    app.use('/api/unit-ranking', unitRankingRoutes);
 
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on http://localhost:${PORT}`);

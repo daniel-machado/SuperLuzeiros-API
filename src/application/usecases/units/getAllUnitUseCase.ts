@@ -7,7 +7,6 @@ export const getAllUnitUseCase = async (
   const units = await unitRepository.getAllUnits();
 
   return {
-    message: 'List Units',
     units
   };
 

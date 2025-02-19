@@ -11,7 +11,6 @@ export const getOneUnitUseCase = async (
     if (!unit) throw new Error("Unit not found!");
 
   return {
-    message: 'Unit success',
     unit
   };
 

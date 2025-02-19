@@ -1,10 +1,7 @@
-// Relacionamento com conselheiros (só podem estar em UMA unidade)
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../sequelize';
 import { Unit } from './Unit';
 import { User } from './User';
-
-// Relacionamento com desbravadores (só podem estar em UMA unidade)
 export class UnitCounselor extends Model {
   public id!: number;
   public unitId!: number;
@@ -50,9 +47,16 @@ UnitCounselor.init(
   }
 );
 
-// Relacionamento com o modelo Unit e User
-UnitCounselor.belongsTo(Unit, { foreignKey: 'unitId', as: 'unit' });
-UnitCounselor.belongsTo(User, { foreignKey: 'userId', as: 'counselor' });
+// // Relacionamento com o modelo Unit e User
+// UnitCounselor.belongsTo(Unit, { foreignKey: 'unitId', as: 'unit' });
+// UnitCounselor.belongsTo(User, { foreignKey: 'userId', as: 'counselor' });
+
+
+
+
+
+
+
 
 // // models/unitCounselor.model.ts
 // import { DataTypes, Model } from 'sequelize';

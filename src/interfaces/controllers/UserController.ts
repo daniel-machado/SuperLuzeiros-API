@@ -31,7 +31,6 @@ export const UserController = {
       const usersPending = await pendingUserUseCase(UserRepository);
       res.status(201).json({ 
         success: true, 
-        message: 'Users pendings',
         usersPending
       });
     } catch (error) {
@@ -53,7 +52,7 @@ export const UserController = {
       );
       res.status(201).json({ 
         success: true, 
-        message: 'User Approved with success',
+        result
       });
     } catch (error: any) {
       console.error("Error approving user:", error);
