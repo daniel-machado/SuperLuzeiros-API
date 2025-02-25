@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 
-import { UnitAnswerController } from '../controllers/UnitAnswerController';
+import { IndividualQuestionsController } from '../controllers/IndividualQuestionsController';
 
 import { authenticate } from '../../interfaces/middlewares/authMiddleware';
 import { authorize } from '../../interfaces/middlewares/AuthorizeMiddleware';
@@ -8,32 +8,31 @@ import { authorize } from '../../interfaces/middlewares/AuthorizeMiddleware';
 const router: Router = express.Router();
 
 // Criar evaluation
-router.post('/create-answer', 
+router.post('/create-question', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.createUnitAnswer
+  IndividualQuestionsController.createQuestion
 ); 
 
 // list all evaluation
-router.get('/list-questions/:unitId', 
+router.get('/list-questions', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.listUnitAnswer
+  IndividualQuestionsController.listQuestion
 ); 
 
-// list all evaluation
-router.get('/list-all-answers', 
+// Update evaluation
+router.put('/update-question/:id', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.listUnitAnswerAll
+  IndividualQuestionsController.updateQuestion
 ); 
-
 
 // delete evaluation
-router.delete('/delete/:id', 
+router.delete('/delete-question/:id', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.deleteUnitAnswer
+  IndividualQuestionsController.deleteQuestion
 ); 
 
 export default router;

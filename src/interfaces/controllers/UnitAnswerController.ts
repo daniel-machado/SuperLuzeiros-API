@@ -9,6 +9,7 @@ import { UnitRankingRepository } from '../../infrastructure/database/repositorie
 import { saveUnitAnswerUseCase } from '../../application/usecases/UnitAnswer/saveUnitAnswerUseCase';
 import { listUnitAnswerUseCase } from '../../application/usecases/UnitAnswer/listUnitAnswerUseCase';
 import { deleteUnitAnswerUseCase } from '../../application/usecases/UnitAnswer/deleteUnitAnswerUseCase';
+import { getUnitAnswerAllUseCase } from '../../application/usecases/UnitAnswer/getUnitAnswerAllUseCase';
 
 export const UnitAnswerController = {
 
@@ -49,10 +50,28 @@ export const UnitAnswerController = {
     }
   },
 
+  async listUnitAnswerAll(req: Request, res: Response): Promise<void>  {
+    try {
+      const answers = await getUnitAnswerAllUseCase(UnitEvaluationAnswerRepository);
+      res.status(200).json({
+        success: true,
+        message: 'List respostas',
+        answers
+    });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  },
+
   async deleteUnitAnswer(req: Request, res: Response): Promise<void>  {
     try {
       const { id } = req.params;
-      const answers = await deleteUnitAnswerUseCase(id, UnitEvaluationAnswerRepository);
+      const answers = await deleteUnitAnswerUseCase(
+        id, 
+        UnitEvaluationAnswerRepository,
+        UnitEvaluationRepository,
+        UnitRankingRepository
+      );
       res.status(200).json({
         success: true,
         message: 'Deleted',

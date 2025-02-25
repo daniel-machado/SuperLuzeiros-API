@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable("individual_evaluation", {
+    await queryInterface.createTable('individual_ranking', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -14,38 +14,20 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "users",
-          key: "id",
+          model: 'users',
+          key: 'id',
         },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
-      counselorId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: "users",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
-      evaluationDate: {
-        type: Sequelize.DATE,
+      week: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       totalScore: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,
-      },
-      status: {
-        type: Sequelize.ENUM("open","closed"),
-        defaultValue: "open"
-      },
-      week: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -56,11 +38,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
-      },
+      },    
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable("individual_evaluation");
+    await queryInterface.dropTable('individual_ranking');
   }
 };

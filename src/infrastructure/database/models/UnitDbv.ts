@@ -1,10 +1,18 @@
 // // models/unitDbv.model.ts
-import { DataTypes, Model} from 'sequelize';
+import { DataTypes, Model, Optional} from 'sequelize';
 import sequelize from '../sequelize';
 import { Unit } from './Unit';
 import { User } from './User';
 
-export class UnitDbv extends Model {
+export interface IUnitDbv {
+  id: string;
+  unitId?: string;
+  userId?: string;
+}
+
+export interface IUnitDbvAttributes extends Optional<IUnitDbv, 'id'> {}
+
+export class UnitDbv extends Model<IUnitDbv, IUnitDbvAttributes > {
   public id!: number;
   public unitId!: number;
   public userId!: number;

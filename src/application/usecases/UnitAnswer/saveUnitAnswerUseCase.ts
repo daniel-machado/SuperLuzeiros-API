@@ -20,18 +20,18 @@ export const saveUnitAnswerUseCase = async (
   const question = await unitEvaluationQuestionRepository.findById(questionId);
   if (!question) throw new Error('Pergunta não encontrada.');
 
-  const answerExisting = await unitEvaluationAnswerRepository.findAllToWeek(unitId, week);
-  if (answerExisting) throw new Error('Essa pergunta já foi respondida');
+  const answerExisting = await unitEvaluationAnswerRepository.findAllToWeek(unitId, week, questionId);
+  if (answerExisting.length > 0) throw new Error('Essa pergunta já foi respondida');
 
    // Buscar a avaliação ativa da unidade
-  const unitEvaluation = await unitEvaluationRepository.findActiveEvaluationByUnitId(unitId);
+  const unitEvaluation = await unitEvaluationRepository.getUnitEvaluationByUnitAndWeek(unitId, week);
   if (!unitEvaluation) throw new Error("Não há avaliação ativa para essa unidade.");
 
   const score = answer ? question.points : 0; // Se a resposta for positiva, atribui os pontos.
 
   const newAnswer = await unitEvaluationAnswerRepository.create(
     unitId, 
-    unitEvaluation.id, 
+    unitEvaluation.id as string, 
     questionId, 
     answer, 
     score.toString(),

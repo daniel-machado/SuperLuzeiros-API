@@ -4,8 +4,9 @@ import { User } from './User';
 
 export interface IIndividualEvaluation {
   id?: string;
-  dbvId?: string;
+  userId?: string;
   counselorId?: string;
+  status?: 'open' | 'closed'; 
   evaluationDate?: Date;
   totalScore?: number;
   week?: number;
@@ -13,12 +14,13 @@ export interface IIndividualEvaluation {
   updatedAt?: Date;
 }
 
-export interface IIIndividualEvaluationAttributes extends Optional<IIndividualEvaluation, 'id' | 'createdAt' | 'updatedAt'> {}
+export interface IIndividualEvaluationAttributes extends Optional<IIndividualEvaluation, 'id' | 'createdAt' | 'updatedAt'> {}
 
-export class IndividualEvaluation extends Model<IIndividualEvaluation, IIIndividualEvaluationAttributes > {
+export class IndividualEvaluation extends Model<IIndividualEvaluation, IIndividualEvaluationAttributes > {
   public id!: string;
-  public dbvId!: string;
+  public userId!: string;
   public counselorId!: string;
+  public status!: 'open' | 'closed';
   public evaluationDate!: Date;
   public totalScore!: number;
   public week!: number;
@@ -34,19 +36,21 @@ IndividualEvaluation.init({
     allowNull: false,
     primaryKey: true,
   },
-  dbvId: {
+  userId: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: User,
       key: 'id',
     },
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
   },
   counselorId: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true,
     references: {
-      model: "users",
+      model: User,
       key: "id",
     },
     onUpdate: "CASCADE",
@@ -54,12 +58,16 @@ IndividualEvaluation.init({
   },
   evaluationDate: {
     type: DataTypes.DATE,
-    allowNull: false,
+    allowNull: true,
   },
   totalScore: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
+  },
+  status: {
+    type: DataTypes.ENUM("open","closed"),
+    defaultValue: "open"
   },
   week: {
     type: DataTypes.INTEGER,
@@ -78,7 +86,7 @@ IndividualEvaluation.init({
 }, { 
     sequelize, 
     modelName: 'individualEvaluation',
-    tableName: 'individual_evaluations', 
+    tableName: 'individual_evaluation', 
     timestamps: true,
   }
 );

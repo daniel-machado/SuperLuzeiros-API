@@ -17,7 +17,7 @@ export const createUnitEvaluationUseCase = async (
     throw new Error("O campo 'evaluatedBy' é obrigatório.");
   }
   if (!data.unitId || !data.week) {
-    throw new Error("unitId e week são obrigatórios para criar ou atualizar uma avaliação.");
+    throw new Error("unitId e week são obrigatórios para criar uma avaliação.");
   }
 
   const existingEvaluationForWeek = await unitEvaluationRepository.getUnitEvaluationByUnitAndWeek(data.unitId, data.week);
@@ -40,7 +40,7 @@ export const createUnitEvaluationUseCase = async (
   const totalScore = (isNaN(examScore) ? 0 : examScore) + additionalPoints;
 
 
-    // Se a avaliação não existe, criar uma nova
+    // Cria uma nova Avaliação
     const newEvaluation = await unitEvaluationRepository.createUnitEvaluation({
       ...data,
       totalScore,

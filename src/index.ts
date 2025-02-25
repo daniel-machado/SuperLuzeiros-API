@@ -12,10 +12,20 @@ import sequelize from './infrastructure/database/sequelize'
 import authRoutes from './interfaces/routes/authRoutes';
 import unitRoutes from './interfaces/routes/unitRoutes';
 import userRoutes from './interfaces/routes/userRoutes';
+
+// Unit Evaluation 
 import unitEvaluationRoutes from './interfaces/routes/unitEvaluationRoutes';
 import unitQuestionsRoutes from './interfaces/routes/unitQuestionsRoutes';
 import unitAnswerRoutes from './interfaces/routes/unitAnswerRoutes';
+
+// Individual Evaluation
+import IndividualEvaluationRoutes from './interfaces/routes/individualEvaluationRoutes';
+import IndividualQuestionsRoutes from './interfaces/routes/individualQuestionsRoutes';
+import IndividualAnswerRoutes from './interfaces/routes/individualAnswerRoutes';
+
+// Rankings
 import unitRankingRoutes from './interfaces/routes/unitRankingRoutes';
+import IndividualRankingRoutes from './interfaces/routes/individualRankingRoutes';
 
 dotenv.config();
 
@@ -36,10 +46,21 @@ sequelize.authenticate().then(() => {
     app.use('/api/auth', authRoutes);
     app.use('/api/unit', unitRoutes);
     app.use('/api/user', userRoutes);
+
+    // Unit Evaluation
     app.use('/api/unit-evaluation', unitEvaluationRoutes);
     app.use('/api/unit-questions', unitQuestionsRoutes);
     app.use('/api/unit-answer', unitAnswerRoutes);
+
+    // Individual Evaluation
+    app.use('/api/individual-evaluation', IndividualEvaluationRoutes);
+    app.use('/api/individual-questions', IndividualQuestionsRoutes);
+    app.use('/api/individual-answer', IndividualAnswerRoutes);
+    
+    // Rankings
     app.use('/api/unit-ranking', unitRankingRoutes);
+    app.use('/api/individual-ranking', IndividualRankingRoutes);
+    
 
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on http://localhost:${PORT}`);

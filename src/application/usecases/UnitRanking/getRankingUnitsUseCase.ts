@@ -3,6 +3,5 @@ import { IUnitRankingRepository } from "../../../infrastructure/database/reposit
 export const getRankingUnitsUseCase = async (
   unitRankingRepository: IUnitRankingRepository
 ) => {
-  console.log("Executando getRankingUnitsUseCase...");
   return await unitRankingRepository.getRanking();
 }

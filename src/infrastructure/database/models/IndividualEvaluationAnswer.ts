@@ -2,25 +2,31 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../sequelize';
 import { IndividualEvaluationQuestion } from './IndividualEvaluationQuestion';
 import { User } from './User';
+import { IndividualEvaluation } from './IndividualEvaluation';
 
 export interface IIndividualEvaluationAnswer {
   id?: string;
+  individualEvaluationId?: string;
   userId?: string;
   questionId?: string;
   answer: string;
   score?: number;
+  week?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
+
 
 export interface IIndividualEvaluationAnswerAttributes extends Optional<IIndividualEvaluationAnswer, 'id' | 'createdAt' | 'updatedAt'> {}
 
 export class IndividualEvaluationAnswer extends Model<IIndividualEvaluationAnswer, IIndividualEvaluationAnswerAttributes> {
   public id!: string;
   public userId!: string;
+  public individualEvaluationId!: string;
   public questionId!: string;
   public answer!: string;
   public score!: number;
+  public week!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -41,6 +47,16 @@ IndividualEvaluationAnswer.init(
         key: 'id',
       },
     },
+    individualEvaluationId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: IndividualEvaluation,
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
     questionId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -54,6 +70,10 @@ IndividualEvaluationAnswer.init(
       allowNull: false,
     },
     score: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    week: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -75,14 +95,3 @@ IndividualEvaluationAnswer.init(
     timestamps: true,
   }
 );
-
-// Definir relações
-IndividualEvaluationAnswer.belongsTo(IndividualEvaluationQuestion, {
-  foreignKey: 'questionId',
-  as: 'question',
-});
-
-IndividualEvaluationAnswer.belongsTo(User, {
-  foreignKey: 'userId',
-  as: 'dbv',
-});

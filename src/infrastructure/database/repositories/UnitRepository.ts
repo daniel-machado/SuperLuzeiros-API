@@ -22,6 +22,8 @@ export interface IUnitRepository {
   addDbvToUnit(unitId: string, userId: string): Promise<any>;
   removeCounselorFromUnit(userId: string): Promise<any>;
   removeDbvFromUnit(userId: string): Promise<any>;
+
+  getUnitByUser(userId: string): Promise<any>;
 }
 
 export const unitRepository = {
@@ -144,6 +146,13 @@ export const unitRepository = {
       });
       return existing;
     },
+
+  // 🔹 Buscar a unidade associada ao usuário
+  getUnitByUser: async (userId: string): Promise<any> => {
+    return await UnitDbv.findOne({
+      where: { userId },
+    });
+  },
 
   // Adicionar desbravador a uma unidade
   addDbvToUnit: async (unitId: string, userId: string): Promise<any> => {

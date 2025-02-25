@@ -20,6 +20,16 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
+      individualEvaluationId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'individual_evaluation',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
       questionId: {
         type: Sequelize.UUID,
         allowNull: false,
@@ -35,6 +45,10 @@ module.exports = {
         allowNull: false,
       },
       score: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      week: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },

@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 
-import { UnitAnswerController } from '../controllers/UnitAnswerController';
+import { IndividualAnswerController } from '../controllers/individualAnswerController';
 
 import { authenticate } from '../../interfaces/middlewares/authMiddleware';
 import { authorize } from '../../interfaces/middlewares/AuthorizeMiddleware';
@@ -11,30 +11,30 @@ const router: Router = express.Router();
 router.post('/create-answer', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.createUnitAnswer
+  IndividualAnswerController.createAnswer
 ); 
 
 // list all evaluation
-router.get('/list-questions/:unitId', 
+router.get('/list-answer/:dbvId', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.listUnitAnswer
+  IndividualAnswerController.listAnswer
 ); 
 
 // list all evaluation
 router.get('/list-all-answers', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.listUnitAnswerAll
+  IndividualAnswerController.listAllAnswer
 ); 
-
 
 // delete evaluation
-router.delete('/delete/:id', 
+router.delete('/delete-answer/:id', 
   authenticate,
   authorize(['admin', 'director']),
-  UnitAnswerController.deleteUnitAnswer
+  IndividualAnswerController.deleteAnswer
 ); 
+
 
 export default router;
 

@@ -10,13 +10,17 @@ import { Unit } from "./Unit";
 import { RefreshToken } from "./RefreshToken";
 import { UnitDbv } from "./UnitDbv";
 import { UnitCounselor } from "./UnitCounselor";
+
 import { UnitEvaluationQuestion } from "./UnitEvaluationQuestion";
 import { UnitEvaluation } from "./UnitEvaluation";
 import { UnitEvaluationAnswer } from "./UnitEvaluationAnswer";
+
 import { IndividualEvaluation } from "./IndividualEvaluation";
 import { IndividualEvaluationQuestion } from "./IndividualEvaluationQuestion";
 import { IndividualEvaluationAnswer } from "./IndividualEvaluationAnswer";
+
 import { UnitRanking } from "./UnitRanking";
+import { IndividualRanking } from "./IndividualRanking";
 
 // Object.values(models).forEach((model: any) => {
 //   if(model.init){
@@ -49,11 +53,16 @@ UnitEvaluation.belongsTo(Unit, { foreignKey: 'unitId', as: 'unit' });
 //Uma Unit pode ter muitas UnitEvaluations associadas.
 Unit.hasMany(UnitEvaluation, { foreignKey: 'unitId', as: 'evaluations' });
 
+// Uma resposta pertence a um usuário
+UnitEvaluationAnswer.belongsTo(Unit, { foreignKey: 'unitId', as: "unitAnswerToUnit" });
+// Um usuário pode ter várias respostas
+Unit.hasMany(UnitEvaluationAnswer, { foreignKey: 'unitId', as: "unitToAnswer" });
+
+
 // Uma pergunta pode ter várias respostas
 UnitEvaluationQuestion.hasMany(UnitEvaluationAnswer, { foreignKey: 'questionId', as: "questionAnswers" });
 // Uma resposta pertence a uma única pergunta
 UnitEvaluationAnswer.belongsTo(UnitEvaluationQuestion, { foreignKey: 'questionId', as: "unitAnswers" });
-
 
 //Cada ranking pertence a uma única unidade
 UnitRanking.belongsTo(Unit, { 
@@ -65,6 +74,47 @@ Unit.hasMany(UnitRanking, {
   foreignKey: 'unitId', 
   as: 'unitRankings' 
 });
+
+//Cada ranking pertence a uma única user
+IndividualRanking.belongsTo(User, { 
+  foreignKey: 'dbvId', 
+  as: 'individualRank' 
+});
+// Uma unidade por ter vários rankings
+User.hasMany(IndividualRanking, { 
+  foreignKey: 'dbvId', 
+  as: 'individualRankings' 
+});
+
+
+
+// Individual Evaluation
+
+// Define que uma(UnitEvaluation) pode ter várias respostas (UnitEvaluationAnswer).
+IndividualEvaluation.hasMany(IndividualEvaluationAnswer, { foreignKey: 'individualEvaluationId', as: 'Individualanswers' });
+// significa que cada resposta (UnitEvaluationAnswer) pertence a uma única avaliação (UnitEvaluation).
+IndividualEvaluationAnswer.belongsTo(IndividualEvaluation, { foreignKey: 'individualEvaluationId', as: 'Individualevaluation' });
+
+// Uma pergunta pode ter várias respostas
+IndividualEvaluationQuestion.hasMany(IndividualEvaluationAnswer, { foreignKey: 'questionId', as: "questionAnswersIndividual" });
+// Uma resposta pertence a uma única pergunta
+IndividualEvaluationAnswer.belongsTo(IndividualEvaluationQuestion, { foreignKey: 'questionId', as: "EvaluationIndividualQuestion" });
+
+// Uma resposta pertence a um usuário
+IndividualEvaluationAnswer.belongsTo(User, { foreignKey: 'userId', as: "individualAnswerToUser" });
+// Um usuário pode ter várias respostas
+User.hasMany(IndividualEvaluationAnswer, { foreignKey: 'userId', as: "individualUserToAnswer" });
+
+// Cada UnitEvaluation pertence a uma única Unit.
+IndividualEvaluation.belongsTo(User, { foreignKey: 'userId', as: 'usersEvaluation' });
+//Uma Unit pode ter muitas UnitEvaluations associadas.
+User.hasMany(IndividualEvaluation, { foreignKey: 'userId', as: 'evaluationsUser' });
+
+
+
+
+
+
 
 
 
