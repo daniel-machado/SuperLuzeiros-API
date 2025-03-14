@@ -21,6 +21,12 @@ import { IndividualEvaluationAnswer } from "./IndividualEvaluationAnswer";
 
 import { UnitRanking } from "./UnitRanking";
 import { IndividualRanking } from "./IndividualRanking";
+import { Specialty } from "./Specialty";
+import { UserSpecialty } from "./UserSpecialty";
+import { QuizQuestion } from "./QuizQuestion";
+import { QuizAnswer } from "./QuizAnswer";
+import { UserClass } from "./ClassUser";
+import { Class } from "./Class";
 
 // Object.values(models).forEach((model: any) => {
 //   if(model.init){
@@ -113,12 +119,28 @@ User.hasMany(IndividualEvaluation, { foreignKey: 'userId', as: 'evaluationsUser'
 
 
 
+// Cada UserSpecialty pertence a um unicio User.
+UserSpecialty.belongsTo(User, { foreignKey: 'userId', as: 'specialtyUser' });
+//Um user pode ter muitas UserSpecialty associadas.
+User.hasMany(UserSpecialty, { foreignKey: 'userId', as: 'userSpecialties' });
+
+// Relacionamento com Specialty
+UserSpecialty.belongsTo(Specialty, {foreignKey: 'specialtyId', as: 'specialtyInfo'});
+
+
+// Cada UserSpecialty pertence a um unicio User.
+UserClass.belongsTo(User, { foreignKey: 'userId', as: 'classUser' });
+//Um user pode ter muitas UserSpecialty associadas.
+User.hasMany(UserClass, { foreignKey: 'userId', as: 'userClass' });
+
+// Relacionamento com Specialty
+UserClass.belongsTo(Class, {foreignKey: 'classId', as: 'classInfo'});
 
 
 
 
-
-
+QuizQuestion.hasMany(QuizAnswer, { foreignKey: "questionId", as: "quizAnswers"});
+QuizAnswer.belongsTo(QuizQuestion, { foreignKey: "questionId", as: "quizquestion" });
 
 
 

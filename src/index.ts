@@ -27,6 +27,20 @@ import IndividualAnswerRoutes from './interfaces/routes/individualAnswerRoutes';
 import unitRankingRoutes from './interfaces/routes/unitRankingRoutes';
 import IndividualRankingRoutes from './interfaces/routes/individualRankingRoutes';
 
+// Specialtys
+import specialtyUserRoutes from './interfaces/routes/specialtyUserRoutes';
+import specialtyRoutes from './interfaces/routes/specialtyRoutes';
+
+import classRoutes from './interfaces/routes/classRoutes';
+import classUserRoutes from './interfaces/routes/classUserRoutes';
+
+// Quiz
+import quizRoutes from './interfaces/routes/quizRoutes';
+import quizQuestionRoutes from './interfaces/routes/quizQuestionRoutes';
+import quizAnswerRoutes from './interfaces/routes/quizAnswerRoutes';
+import quizAttemptRoutes from './interfaces/routes/quizAttemptRoutes';
+import quizStatisticsRoutes from './interfaces/routes/quizStatisticsRoutes';
+
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -62,6 +76,23 @@ sequelize.authenticate().then(() => {
     app.use('/api/individual-ranking', IndividualRankingRoutes);
     
 
+    // Especialidades
+    app.use('/api/specialty', specialtyRoutes);
+    app.use('/api/specialty-user', specialtyUserRoutes);
+
+    // Classes
+    app.use('/api/class', classRoutes);
+    app.use('/api/class-user', classUserRoutes);
+
+
+    // Quiz
+    app.use('/api/quiz', quizRoutes);
+    app.use('/api/quiz-question', quizQuestionRoutes);
+    app.use('/api/quiz-answer', quizAnswerRoutes);
+    app.use('/api/quiz-user-attempt', quizAttemptRoutes);
+    app.use('/api/quiz-statistics', quizStatisticsRoutes);
+
+    
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on http://localhost:${PORT}`);
     });
