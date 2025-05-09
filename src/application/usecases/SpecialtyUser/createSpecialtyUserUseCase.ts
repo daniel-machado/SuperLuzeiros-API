@@ -5,7 +5,6 @@ export const createSpecialtyUserUseCase = async (
   data: IUserSpecialty,
   userSpecialtyRepository: IUserSpecialtyRepository, 
 ) => {
-
   const {userId, specialtyId} = data;
   const existingSpecialty = await userSpecialtyRepository.findByUserAndSpecialty(userId, specialtyId);
   if (existingSpecialty) {
@@ -13,7 +12,6 @@ export const createSpecialtyUserUseCase = async (
   }
 
   const newSpecialty = await userSpecialtyRepository.create(data);
-
   return {
     newSpecialty
   };

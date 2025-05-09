@@ -9,7 +9,7 @@ export interface IClass {
   name: string;
   type: TypeClass;
   minAge: number;
-  maxAge: number;
+  maxAge?: number;
   emblem?: string;
   requirements?: { question: string; options?: string[] }[];
   createdAt?: Date

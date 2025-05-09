@@ -10,32 +10,19 @@ if (!TOKEN_SECRET || !JWT_EXPIRES_IN || !REFRESH_TOKEN_SECRET || !REFRESH_TOKEN_
 }
 
 export const generateAccessToken = (payload: object): string => {
-  //return jwt.sign(payload, TOKEN_SECRET as string, { expiresIn: JWT_EXPIRES_IN || '1h' } // Investigar depois
-  return jwt.sign(payload, TOKEN_SECRET as string);
+  return jwt.sign(payload, TOKEN_SECRET, { expiresIn: '4h', })
 };
 
-export const generateRefreshToken = async (userId: string): Promise<string> => {
-  //const refreshToken = jwt.sign({ id: userId }, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN }); // Depois investigar
-  const refreshToken = jwt.sign({ id: userId }, REFRESH_TOKEN_SECRET);
-  const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
-
-  await refreshTokenRepository.create(userId, refreshToken, expirationDate);
-  return refreshToken;
+export const generateRefreshToken =  (userId: string): string => {
+  return jwt.sign({ id: userId }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 };
 
-export const verifyRefreshToken = (token: string): string => {
-  try {
-    // Verifica se o refresh token é válido e decodifica
-    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET as string) as { id: string };
-    if (!decoded || !decoded.id) {
-      throw new Error('Invalid token or missing user ID');
-    }
-    const userId = decoded.id;
-    return userId;
-  } catch (error) {
-    console.error('Error during signout from all devices:', error);
-    throw new Error('Invalid refresh token');
-  }
+export const verifyToken = (token: string) => {
+  return jwt.verify(token, TOKEN_SECRET);
+};
+
+export const verifyRefreshToken = (token: string) => {
+  return jwt.verify(token, REFRESH_TOKEN_SECRET);
 };
 
 // Revoga um token específico
@@ -47,3 +34,21 @@ export const revokeRefreshToken = async (token: string): Promise<void> => {
 export const revokeAllTokensForUser = async (userId: string): Promise<void> => {
   await refreshTokenRepository.deleteByUserId(userId);
 };
+
+
+// export const verifyToken = async (token: string): Promise<userId: string> => {
+//   try {
+//     // Verifica se o token é válido e decodifica
+//     const decoded = jwt.verify(token, TOKEN_SECRET as string,) as { id: string } as { userId: string };
+//     if (!decoded || !decoded.id) {
+//       throw new Error('Invalid token or missing user ID');
+//     }
+//     const userId = decoded.id;
+//     return userId;
+//   } catch (error) {
+//     console.error('Error', error);
+//     throw new Error('Invalid token');
+//   }
+// };
+
+

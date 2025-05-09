@@ -13,7 +13,8 @@ export const saveUnitAnswerUseCase = async (
   unitEvaluationQuestionRepository: IUnitEvaluationQuestionRepository, 
   unitEvaluationAnswerRepository: IUnitEvaluationAnswerRepository,
   unitEvaluationRepository: IUnitEvaluationRepository,
-  unitRankingRepository: IUnitRankingRepository
+  unitRankingRepository: IUnitRankingRepository,
+  observation?: string,
 
 ) => {
 
@@ -35,7 +36,8 @@ export const saveUnitAnswerUseCase = async (
     questionId, 
     answer, 
     score.toString(),
-    week
+    week,
+    observation
   );
 
   // Atualizar `totalScore` da avaliação correspondente

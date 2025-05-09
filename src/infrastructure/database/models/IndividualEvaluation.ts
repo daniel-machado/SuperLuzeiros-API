@@ -61,7 +61,7 @@ IndividualEvaluation.init({
     allowNull: true,
   },
   totalScore: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10, 1),
     allowNull: false,
     defaultValue: 0,
   },

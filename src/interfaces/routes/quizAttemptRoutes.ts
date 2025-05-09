@@ -9,7 +9,7 @@ const router: Router = express.Router();
 
 router.post('/submit',
   authenticate,
-  authorize(['admin', 'director']), 
+  //authorize(['admin', 'director']), 
   quizAttemptController.create
 );
 

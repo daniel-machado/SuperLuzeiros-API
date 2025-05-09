@@ -3,7 +3,7 @@ import sequelize from "../sequelize";
 
 // Definindo a interface para os atributos de um usuário
 export interface IRefreshToken {
-  id: string;
+  id?: string;
   userId: string;
   token: string;
   expiresAt: Date;

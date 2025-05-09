@@ -3,25 +3,22 @@ import { IUserAttributes } from "../../../infrastructure/database/models/User";
 import { IHashingService } from "../../../infrastructure/hashing/hashingService";
 import { IUserRepository } from "../../../infrastructure/database/repositories/UserRepository";
 import moment from "moment";
-
-// interface SigninInput {
-//   name: string,
-//   birthDate: Date; 
-//   email: string, 
-//   password: string,
-//   confirmPassword: string,
-//   photoUrl?: string, 
-// }
+import { generateAccessToken, generateRefreshToken } from "../../services/tokenService";
+import { IRefreshTokenRepository } from "../../../infrastructure/database/repositories/refreshTokenRepository";
 
 export const signupUseCase = async (
   userData: IUserAttributes,
   userRepository: IUserRepository, 
-  hashingService: IHashingService
-): Promise<IUserAttributes> => {
+  hashingService: IHashingService,
+  refreshTokenRepository: IRefreshTokenRepository,
+) => {
 
   const { name, birthDate, email, password, photoUrl } = userData;
 
-  // Verificar se o e-mail já está em uso
+  if (typeof userData !== "object" || userData === null) {
+    throw new Error("Erro: userData não é um objeto válido!");
+  }
+
   const existingUser = await userRepository.findUserByEmail(email);
   if (existingUser) {
     throw new Error('Email already in use');
@@ -42,6 +39,15 @@ export const signupUseCase = async (
     isVerified: false,
   } as unknown as IUserAttributes);
 
+  // const token = generateAccessToken(newUser)
+  // const refreshToken = generateRefreshToken(newUser.id as string)
+
+  // await refreshTokenRepository.create({
+  //   token: refreshToken,
+  //   userId: newUser.id as string,
+  //   expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 dias
+  // })
+
   return {
     id: newUser.id, 
     name: newUser.name, 
@@ -53,5 +59,7 @@ export const signupUseCase = async (
     status: newUser.status,
     isActive: newUser.isActive,
     isVerified: newUser.isVerified,
+    // token,
+    // refreshToken
   };
 };

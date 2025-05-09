@@ -12,6 +12,7 @@ export interface IIndividualEvaluationAnswer {
   answer: string;
   score?: number;
   week?: number;
+  observation?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -27,6 +28,7 @@ export class IndividualEvaluationAnswer extends Model<IIndividualEvaluationAnswe
   public answer!: string;
   public score!: number;
   public week!: number;
+  public observation!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -77,6 +79,10 @@ IndividualEvaluationAnswer.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    observation:{
+      type: DataTypes.STRING,
+      allowNull: true
+    }, 
     createdAt: {
       type: DataTypes.DATE,
       allowNull: true,

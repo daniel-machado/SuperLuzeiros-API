@@ -41,7 +41,7 @@ export const QuizQuestionRepository = {
         { 
           model: QuizAnswer, 
           as: "quizAnswers", 
-          attributes: ["answer", "isCorrect"],
+          attributes: ["id", "questionId", "answer", "isCorrect"],
         }
       ],
     });

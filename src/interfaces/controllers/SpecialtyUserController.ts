@@ -16,6 +16,9 @@ import { getByUserAndSpecialtyUserUseCase } from '../../application/usecases/Spe
 import { getAllByUserSpecialtyUserUseCase } from '../../application/usecases/SpecialtyUser/getAllByUserSpecialtyUserUseCase';
 import { getAllBySpecialtyUserUseCase } from '../../application/usecases/SpecialtyUser/getAllBySpecialtyUserUseCase';
 import { sendReportUserSpecialtyUseCase } from '../../application/usecases/SpecialtyUser/sendReportUserSpecialtyUseCase';
+import { IndividualEvaluationRepository } from '../../infrastructure/database/repositories/IndividualEvaluationRepository';
+import { UnitEvaluationRepository } from '../../infrastructure/database/repositories/UnitEvaluationRepository';
+import { IndividualRankingRepository } from '../../infrastructure/database/repositories/InidividualRankingRepository';
 
 export const SpecialtyUserController = {
 
@@ -88,7 +91,7 @@ export const SpecialtyUserController = {
   },
 
   async getByUserAndSpecialty(req: Request, res: Response): Promise<void>  {
-    const { userId, specialtyId } = req.body
+    const { userId, specialtyId } = req.params
     try {
       const result = await getByUserAndSpecialtyUserUseCase(userId, specialtyId, UserSpecialtyRepository);
       res.status(200).json({
@@ -101,7 +104,7 @@ export const SpecialtyUserController = {
   },
 
   async getAllByUser(req: Request, res: Response): Promise<void>  {
-    const { userId } = req.body
+    const { userId } = req.params
     try {
       const result = await getAllByUserSpecialtyUserUseCase(userId, UserSpecialtyRepository);
       res.status(200).json({
@@ -114,7 +117,7 @@ export const SpecialtyUserController = {
   },
 
   async getAllBySpecialty(req: Request, res: Response): Promise<void>  {
-    const { specialtyId } = req.body
+    const { specialtyId } = req.params
     try {
       const result = await getAllBySpecialtyUserUseCase(specialtyId, UserSpecialtyRepository);
       res.status(200).json({
@@ -150,7 +153,10 @@ export const SpecialtyUserController = {
         userIdApproved,
         comment,
         UserSpecialtyRepository,
-        UserRepository
+        UserRepository,
+        IndividualEvaluationRepository,
+        IndividualRankingRepository,
+        UnitEvaluationRepository,
       );
       res.status(201).json({
         success: true,

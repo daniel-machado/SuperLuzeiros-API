@@ -32,6 +32,7 @@ export const UserRepository: IUserRepository = {
   findUserById: async (id: string): Promise<IUserAttributes | null> => {
     return await User.findOne({
       where: { id },
+      attributes: { exclude: ['password'] }
     });
   },
 
@@ -54,16 +55,22 @@ export const UserRepository: IUserRepository = {
     }
     // Atualiza os dados do usuário normalmente
     await user.update(data);
-
-    // Se um unitId foi passado, associa o usuário à unidade correta
+  
+    //Se um unitId foi passado, verifica se precisa atualizar
     if (unitId) {
-      await UnitDbv.upsert(
-        { userId, unitId },
-        { conflictFields: ["unitId", "userId"] } // 🔹 Usa os campos únicos corretamente
-      ); // Insere ou atualiza o relacionamento
+      const existingUnit = await UnitDbv.findOne({ where: { userId } });
+  
+      if (!existingUnit || String(existingUnit.unitId) !== String(unitId)) {
+        await UnitDbv.upsert(
+          { userId, unitId },
+          { conflictFields: ["unitId", "userId"] } // 🔹 Usa os campos únicos corretamente
+        );
+      }
     }
+  
     return user;
   },
+  
 
   findByEmailWithVerificationCode: async (email: string): Promise<IUserAttributes | null> => {
     return await User.findOne({

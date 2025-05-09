@@ -23,14 +23,19 @@ export const classController = {
       emblem,
       requirements
     } = req.body;
+
+    if (!name || !type || !minAge) {
+      res.status(400).json({ error: "Os campos 'name', 'type' e 'minAge' são obrigatórios" });
+      return
+    }
   
     try {
       // Filtra apenas os campos definidos (não null ou undefined)
       const classData = {
         name,
         type,
-        minAge,
-        maxAge,
+        minAge,  // Converte minAge para número
+        ...(maxAge && { maxAge: Number(maxAge) }),
         ...(emblem && { emblem }),
         ...(requirements && { requirements })
       };

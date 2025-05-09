@@ -43,12 +43,12 @@ export const UserClassRepository = {
         { 
           model: User, 
           as: "classUser", 
-          attributes: ["name"],
+          attributes: ["name", "photoUrl"],
         },
         {
           model: Class,
           as: "classInfo",
-          attributes: ["name"],
+          attributes: ["name", "emblem", "type"],
         },
       ],
     });
@@ -75,7 +75,7 @@ export const UserClassRepository = {
         {
           model: Class,
           as: "classInfo",
-          attributes: ["name"],
+          attributes: ["name", "type", "emblem"],
         },
       ],
     });

@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
+
 // Banco de Dados
 import sequelize from './infrastructure/database/sequelize'
 //import connectDB from './infrastructure/database/db'; //Conexão Antiga
@@ -52,7 +53,30 @@ sequelize.authenticate().then(() => {
     const app = express();
     
     app.use(express.json());
-    app.use(cors());
+    app.use(cors({
+      origin: [
+        "http://localhost:5173", // Frontend Web (React/Vite)
+        "http://seu-site.com", // Caso tenha um domínio em produção
+        "exp://192.168.1.10:19000", // Expo Go no celular (React Native)
+        "http://localhost" // Para aplicativos móveis (Android/iOS)
+      ],
+      allowedHeaders: ["Content-Type", "Authorization"], // Permite envio de tokens no header
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Define os métodos HTTP permitidos
+      credentials: true
+    }));
+
+    // app.use(cors({
+    //   origin: [
+    //     "http://localhost:5173", // Frontend Web (React/Vite)
+    //     "http://seu-site.com", // Caso tenha um domínio em produção
+    //     "exp://192.168.1.10:19000", // Expo Go no celular (React Native)
+    //     "http://localhost" // Para aplicativos móveis (Android/iOS)
+    //   ],
+    //   credentials: true, // Permite cookies e autenticação
+    //   methods: ["GET", "POST", "PUT", "DELETE"], // Métodos HTTP permitidos
+    //   allowedHeaders: ["Content-Type", "Authorization"], // Headers permitidos
+    // }));
+
     app.use(helmet());
     app.use(cookieParser());
     app.use(express.urlencoded({ extended: true }));

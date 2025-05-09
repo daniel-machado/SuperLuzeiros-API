@@ -20,10 +20,11 @@ export interface IUnitRepository {
   existeDBVOtherUnit(userId: string):Promise<any>;
 
   addDbvToUnit(unitId: string, userId: string): Promise<any>;
-  removeCounselorFromUnit(userId: string): Promise<any>;
-  removeDbvFromUnit(userId: string): Promise<any>;
+  removeCounselorFromUnit(userId: string, unitId: string): Promise<any>;
+  removeDbvFromUnit(userId: string, unitId: string): Promise<any>;
 
   getUnitByUser(userId: string): Promise<any>;
+  countDbvsByUnitId(unitId: string): Promise<number>;
 }
 
 export const unitRepository = {
@@ -44,7 +45,7 @@ export const unitRepository = {
             {
               model: User,
               as: "counselor", // Nome do alias definido no relacionamento
-              attributes: ["id", "name"], // Busca o nome e o id do User associado
+              attributes: ["id", "name", "photoUrl"], // Busca o nome e o id do User associado
             },
           ],
           attributes: ["id"]
@@ -56,7 +57,7 @@ export const unitRepository = {
             {
               model: User,
               as: "dbv", // Se UnitDbv também se relaciona com User
-              attributes: ["id", "name"], 
+              attributes: ["id", "name", "photoUrl"], 
             },
           ],
           attributes: ["id"]
@@ -133,10 +134,13 @@ export const unitRepository = {
 
     // Verifica se o usuário já é dbv da unidade passada
     existingDBVUnitActual: async(unitId: string, userId: string): Promise<any> => {
-      const existingCounselor = await UnitDbv.findOne({
-        where: { unitId, userId },
+      const existingDbv = await UnitDbv.findOne({
+        where: { 
+          unitId: String(unitId), 
+          userId: String(userId) 
+        },
       });
-      return existingCounselor
+      return existingDbv
     },
   
     // Verificar se já está em outra unidade
@@ -160,13 +164,29 @@ export const unitRepository = {
   },
 
   // Remover conselheiro de uma unidade
-  removeCounselorFromUnit: async (userId: string): Promise<any> => {
-    return await UnitCounselor.destroy({ where: { userId } });
+  removeCounselorFromUnit: async (unitId: string, userId: string): Promise<any> => {
+    return await UnitCounselor.destroy({ where: { unitId, userId } });
   },
 
   // Remover desbravador de uma unidade
-  removeDbvFromUnit: async (userId: string): Promise<any> => {
-    return await UnitDbv.destroy({ where: { userId } });
+  removeDbvFromUnit: async (unitId: string, userId: string): Promise<any> => {
+    try {
+      //console.log("Tentando remover DBV:", { unitId, userId });
+      const result = await UnitDbv.destroy({ where: { unitId, userId } });
+      //console.log("Resultado do destroy:", result);
+      return result;
+    } catch (error) {
+      console.log("Erro ao remover DBV:", error);
+      throw error;
+    }
+  },
+
+  countDbvsByUnitId: async(unitId: string): Promise<number> => {
+    return await UnitDbv.count({
+      where: {
+        unitId,
+      }
+    })
   }
 
 }

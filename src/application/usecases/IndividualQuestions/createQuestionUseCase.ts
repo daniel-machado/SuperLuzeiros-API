@@ -3,8 +3,10 @@ import { IIndividualEvaluationQuestionRepository } from '../../../infrastructure
 export const createQuestionUseCase = async (
   question: string,
   points: number,
-  individualQuestionRepository: IIndividualEvaluationQuestionRepository
+  typeQuestion: 'text' | 'number' | 'yes_no',
+  individualQuestionRepository: IIndividualEvaluationQuestionRepository,
+  description?: string,
 ) => {
-  return await individualQuestionRepository.create(question, points);
+  return await individualQuestionRepository.create(question, points, typeQuestion, description);
 }
 

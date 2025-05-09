@@ -5,8 +5,10 @@ import { User } from './User';
 
 export interface IUnitEvaluationQuestion {
   id?: string;
-  question?: string;
-  points?: number;
+  question: string;
+  points: number;
+  typeQuestion: 'text' | 'number' | 'yes_no'; 
+  description?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -17,6 +19,8 @@ export class UnitEvaluationQuestion extends Model<IUnitEvaluationQuestion, IUnit
   public id!: string;
   public question!: string;
   public points!: number;
+  public typeQuestion!: 'text' | 'number' | 'yes_no'; 
+  public description!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -35,6 +39,15 @@ UnitEvaluationQuestion.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
+  },
+  typeQuestion: {
+    type: DataTypes.ENUM('text', 'number', 'yes_no'),
+    allowNull: false,
+    defaultValue: 'text'
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   createdAt: {
     type: DataTypes.DATE,

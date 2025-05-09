@@ -15,31 +15,31 @@ router.post('/create',
 
 router.get('/list-all', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   ClassUserController.getAll
 ); 
 
 router.get('/list-one-class/:id', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   ClassUserController.getOneById
 ); 
 
 router.get('/list-user-class', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   ClassUserController.getByUserAndClass
 ); 
 
-router.get('/list-user-all', 
+router.get('/list-user-all/:userId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   ClassUserController.getAllByUser
 ); 
 
 router.get('/list-class-all', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   ClassUserController.getAllByClass
 ); 
 

@@ -4,9 +4,11 @@ import { IUnitEvaluationQuestion } from "../../../infrastructure/database/models
 export const createUnitQuestionsUseCase = async (
   question: string,
   points: number,
+  typeQuestion: "number" | "text" | "yes_no",
   unitEvaluationQuestionRepository: IUnitEvaluationQuestionRepository, 
+  description?: string,
 ) => {
 
-  return await unitEvaluationQuestionRepository.create(question, points);
+  return await unitEvaluationQuestionRepository.create(question, points, typeQuestion, description);
 }
 

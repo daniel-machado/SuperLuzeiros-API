@@ -16,7 +16,7 @@ export const quizController = {
   async create(req: Request, res: Response): Promise<void>  {
     const { title, specialtyId } = req.body;
     try {
-      const result = await createQuizUserUseCase({title, specialtyId}, QuizRepository);
+      const result = await createQuizUserUseCase({title, specialtyId, is_active: false }, QuizRepository);
       res.status(201).json({
         success: true,
         message: 'Created Quiz',
@@ -29,9 +29,9 @@ export const quizController = {
 
   async update(req: Request, res: Response): Promise<void>  {
     const { id } = req.params;
-    const { title, specialtyId } = req.body;
+    const { title, specialtyId, is_active } = req.body;
     try {
-      const result = await updateQuizUserUseCase(id, {title, specialtyId}, QuizRepository)
+      const result = await updateQuizUserUseCase(id, {title, specialtyId, is_active}, QuizRepository)
       res.status(201).json({
         success: true,
         message: 'Updated Quiz',
@@ -80,7 +80,7 @@ export const quizController = {
   },
 
   async getBySpecialty(req: Request, res: Response): Promise<void>  {
-    const { specialtyId } = req.body;
+    const { specialtyId } = req.params;
     try {
       const result = await getBySpecialtyQuizUserUseCase(specialtyId, QuizRepository)
       res.status(201).json({

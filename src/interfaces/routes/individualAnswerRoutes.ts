@@ -10,21 +10,21 @@ const router: Router = express.Router();
 // Criar evaluation
 router.post('/create-answer', 
   authenticate,
-  authorize(['admin', 'director']),
+  authorize(['admin', 'director', 'counselor']),
   IndividualAnswerController.createAnswer
 ); 
 
 // list all evaluation
 router.get('/list-answer/:dbvId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   IndividualAnswerController.listAnswer
 ); 
 
 // list all evaluation
 router.get('/list-all-answers', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   IndividualAnswerController.listAllAnswer
 ); 
 

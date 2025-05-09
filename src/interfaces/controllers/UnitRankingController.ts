@@ -40,12 +40,8 @@ export const UnitRankingController = {
 
   async getRankingUnits(req: Request, res: Response): Promise<void>  {
     try {
-      console.log("Chamando getRankingUnitsUseCase...");
       const ranking = await getRankingUnitsUseCase(UnitRankingRepository);
-      console.log("Resultado do UseCase:", ranking);
-
       res.status(200).json({success: true, ranking});
-
     } catch (error) {
       console.log("Error capturado no Controller:", error);
       res.status(400).json({ success: false, error: error });

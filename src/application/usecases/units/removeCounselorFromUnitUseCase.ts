@@ -14,7 +14,7 @@ export const removeCounselorFromUnitUseCase = async (
     throw new Error('Conselheiro não encontrado nesta unidade.')
   }
 
-  const unitdelete = await unitRepository.removeCounselorFromUnit(userId);
+  const unitdelete = await unitRepository.removeCounselorFromUnit(unitId, userId);
     if (!unitdelete) throw new Error("Unit not found!");
 
   return {

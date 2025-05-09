@@ -14,12 +14,15 @@ export const removeDbvFromUnitUseCase = async (
   const dbv = await unitRepository.existingDBVUnitActual(unitId, userId);
   if(!dbv){
     throw new Error('DBV não encontrado nesta unidade.')
+    
   }
 
-  const dbvRemove = await unitRepository.removeDbvFromUnit(userId);
-    if (!dbvRemove) throw new Error("User not found!");
+  const dbvRemove = await unitRepository.removeDbvFromUnit(unitId, userId);
+    if (!dbvRemove){ 
+      throw new Error("User not found!");
+    }
 
-  await userRepository.updateUser(userId, { status: 'pending' });
+    await userRepository.updateUser(userId, { status: 'pending' });
 
   return {
     message: 'Dbv remove to Unit',

@@ -12,6 +12,7 @@ export interface IUnitEvaluationAnswer {
   week?: number; 
   answer: string;
   score?: string;
+  observation?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -26,6 +27,7 @@ export class UnitEvaluationAnswer extends Model<IUnitEvaluationAnswer, IUnitEval
   public answer!: string;
   public score!: string;
   public week!: number;
+  public observation?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -67,7 +69,7 @@ UnitEvaluationAnswer.init({
     allowNull: false,
   },
   score: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
   week: {
@@ -75,6 +77,10 @@ UnitEvaluationAnswer.init({
     allowNull: false,
     defaultValue: 1, 
   },
+  observation:{
+    type: DataTypes.STRING,
+    allowNull: true
+  }, 
   createdAt: {
     type: DataTypes.DATE,
     allowNull: true,

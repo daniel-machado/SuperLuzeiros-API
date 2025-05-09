@@ -15,25 +15,25 @@ router.post('/create',
 
 router.get('/list-all', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   specialtyController.getAllSpecialty
 ); 
 
 router.get('/list-category', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   specialtyController.getByCategory
 ); 
 
 router.get('/list-one-specialty/:id', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   specialtyController.getById
 ); 
 
 router.get('/list-level/:level', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   specialtyController.getByLevel
 ); 
 

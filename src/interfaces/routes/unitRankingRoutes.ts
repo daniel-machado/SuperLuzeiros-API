@@ -10,14 +10,14 @@ const router: Router = express.Router();
 // Lista todo o ranking
 router.get('/list-ranking', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitRankingController.getRankingUnits
 ); 
 
 // Ranking por unidade
 router.get('/unit/:unitId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitRankingController.getUnitRankingByUnit
 ); 
 
@@ -31,7 +31,7 @@ router.delete('/delete/:id',
 // Ranking por semana
 router.get('/:week', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitRankingController.getUnitRankingWeek
 ); 
 

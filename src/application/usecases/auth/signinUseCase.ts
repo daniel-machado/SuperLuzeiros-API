@@ -5,7 +5,6 @@ import { IUserRepository } from '../../../infrastructure/database/repositories/U
 import { IHashingService } from '../../../infrastructure/hashing/hashingService';
 
 interface LoginResult {
-  message: string
   accessToken: string;
   refreshToken: string;
 }
@@ -15,6 +14,7 @@ export const signInUseCase = async (
   password: string, 
   userRepository: IUserRepository, 
   hashingService: IHashingService,
+  refreshTokenRepository: IRefreshTokenRepository,
 ): Promise<LoginResult> => {
 
   // Validar email e senha
@@ -42,16 +42,31 @@ export const signInUseCase = async (
     throw new Error("User ID is undefined, cannot generate refresh token.");
   }
 
-  const accessToken = await generateAccessToken({ 
+  const accessToken = generateAccessToken({ 
     userId: user.id, 
     email: user.email, 
-    role: user.role 
+    role: user.role,
+    name: user.name,
+    birthDate: user.birthDate,
+    isActive: user.isActive,
+    isVerified: user.isVerified,
+    photoUrl: user.photoUrl,
+    status: user.status,
+    verificationCode:user.verificationCode,
+    verificationCodeValidation: user.verificationCodeValidation,
+    forgotPasswordCodeValidation: user.forgotPasswordCodeValidation,
+    forgotPasswordCode: user.forgotPasswordCode,
   });
   
-  const refreshToken = await generateRefreshToken(user.id as string);
+  const refreshToken = generateRefreshToken(user.id as string);
+
+  await refreshTokenRepository.create({
+    token: refreshToken,
+    userId: user.id,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 dias
+  })
 
   return {
-    message: 'Logged in successfully',
     accessToken,
     refreshToken,
   };

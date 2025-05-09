@@ -35,6 +35,8 @@ import { Class } from "./Class";
 // });
 
 
+RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'refreshUser' });
+
 // Define os relacionamentos
 
 // Relacionamento: Uma unidade tem vários conselheiros

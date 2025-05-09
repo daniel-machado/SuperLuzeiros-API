@@ -1,7 +1,7 @@
 import { IIndividualEvaluationQuestion, IndividualEvaluationQuestion } from '../models/IndividualEvaluationQuestion';
 
 export interface IIndividualEvaluationQuestionRepository {
-  create(question: string, points: number): Promise<IndividualEvaluationQuestion>;
+  create(question: string, points: number, typeQuestion: 'text' | 'number' | 'yes_no', description?: string): Promise<IndividualEvaluationQuestion>;
   findAll(): Promise<IndividualEvaluationQuestion[]>;
   findById(id: string): Promise<IndividualEvaluationQuestion>;
   update(id: string, data: Partial<IndividualEvaluationQuestion>): Promise<IndividualEvaluationQuestion>;
@@ -9,8 +9,8 @@ export interface IIndividualEvaluationQuestionRepository {
 }
 
 export const IndividualEvaluationQuestionRepository = {
-  create: async (question: string, points: number): Promise<IndividualEvaluationQuestion> => {
-    return await IndividualEvaluationQuestion.create({ question, points });
+  create: async (question: string, points: number, typeQuestion: 'text' | 'number' | 'yes_no', description?: string): Promise<IndividualEvaluationQuestion> => {
+    return await IndividualEvaluationQuestion.create({ question, points, typeQuestion, description });
   },
   findAll: async (): Promise<IndividualEvaluationQuestion[]> => {
     return await IndividualEvaluationQuestion.findAll();

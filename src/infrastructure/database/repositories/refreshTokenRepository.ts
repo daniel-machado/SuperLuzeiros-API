@@ -1,20 +1,27 @@
+import { User } from "../models";
 import { RefreshToken, IRefreshToken, IRefreshTokenCreationAttributes  } from "../models/RefreshToken";
 
 
 export interface IRefreshTokenRepository {
-  create(userId: string, token: string, expiresAt: Date): Promise<IRefreshToken>;
+  create({token, userId, expiresAt}: IRefreshToken): Promise<IRefreshToken>;
   findByToken(token: string): Promise<IRefreshToken | null>;
   deleteByToken(token: string): Promise<number>;
   deleteByUserId(userId: string): Promise<boolean>;
 }
 
 export const refreshTokenRepository = {
-  create: async (userId: string, token: string, expiresAt: Date): Promise<IRefreshToken> => {
-    return await RefreshToken.create({ userId, token, expiresAt });
+  create: async ({token, userId, expiresAt}: IRefreshToken): Promise<IRefreshToken> => {
+    return await RefreshToken.create({ token, userId, expiresAt });
   },
 
   findByToken: async (token: string): Promise<IRefreshToken | null> =>{
-    return await RefreshToken.findOne({ where: { token } });
+    return await RefreshToken.findOne({ 
+      where: { token }, 
+      include: [{ 
+        model: User,
+        as: 'refreshUser'
+      }]
+    });
   },
 
   deleteByToken: async (token: string): Promise<number> => {

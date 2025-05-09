@@ -48,7 +48,7 @@ export const IndividualRankingRepository  = {
         {
           model: User,
           as: 'individualRank',
-          attributes: ["name"]
+          attributes: ["name", "photoUrl"]
         } 
       ],
       order: [["totalScore", "DESC"]], // Ordenando do maior para o menor
@@ -62,7 +62,7 @@ export const IndividualRankingRepository  = {
         {
           model: User,
           as: 'individualRank',  // Usando um alias diferente para a tabela users
-          attributes: ["name"],  // Exibindo nome do dbv
+          attributes: ["name", "photoUrl"],  // Exibindo nome do dbv
         },
       ],
       attributes: [

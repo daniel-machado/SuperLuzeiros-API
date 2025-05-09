@@ -5,7 +5,9 @@ import sequelize from "../sequelize";
 export interface IIndividualEvaluationQuestion {
   id?: string;
   question: string;
-  points?: number;
+  points: number;
+  typeQuestion: 'text' | 'number' | 'yes_no'; 
+  description?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -16,6 +18,8 @@ export class IndividualEvaluationQuestion extends Model<IIndividualEvaluationQue
   public id!: string;
   public question!: string;
   public points!: number;
+  public typeQuestion!: 'text' | 'number' | 'yes_no'; 
+  public description!: string;
   public createdAt!: Date;
   public updatedAt!: Date;
 }
@@ -35,6 +39,15 @@ IndividualEvaluationQuestion.init(
     points: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    typeQuestion: {
+      type: DataTypes.ENUM('text', 'number', 'yes_no'),
+      allowNull: false,
+      defaultValue: 'text'
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     createdAt: {
       type: DataTypes.DATE,

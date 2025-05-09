@@ -17,14 +17,14 @@ router.post('/create-answer',
 // list all evaluation
 router.get('/list-questions/:unitId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitAnswerController.listUnitAnswer
 ); 
 
 // list all evaluation
 router.get('/list-all-answers', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitAnswerController.listUnitAnswerAll
 ); 
 

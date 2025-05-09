@@ -15,8 +15,7 @@ export const signoutAllUseCase = async (
   const existingToken = await refreshTokenRepository.findByToken(token);
   if (!existingToken) throw new Error("Invalid refresh token");
 
-  const userId = verifyRefreshToken(existingToken.token);
-  await revokeAllTokensForUser(userId)
+  await refreshTokenRepository.deleteByUserId(existingToken.userId)
 
   return {
     message: 'Logged out from all devices - successfully',

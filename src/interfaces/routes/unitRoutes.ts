@@ -27,14 +27,14 @@ router.get('/getunit/:id',
 ); 
 
 // Atualizar unidade
-router.put('/updateunit/:id', 
+router.put('/updateUnit/:id', 
   authenticate,
   authorize(['admin', 'director']),
   unitController.updateUnit
 ); 
 
 // Deletar unidade
-router.delete('/deleteunit/:id', 
+router.delete('/deleteUnit/:id', 
   authenticate,
   authorize(['admin', 'director']),
   unitController.deleteUnit
@@ -45,6 +45,13 @@ router.post('/:unitId/counselors',
   authenticate,
   authorize(['admin', 'director']),
   unitController.addCounselorToUnit
+);
+
+// Verificar se o conselheiro já está na unidade
+router.get('/exist-counselor-unit/:userId', 
+  authenticate,
+  //authorize(['admin', 'director', 'counselor']),
+  unitController.existeUnitCounselor
 );
 
 // Adicionar dbv

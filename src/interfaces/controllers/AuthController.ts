@@ -20,36 +20,44 @@ import { verifyForgotPasswordCodeUseCase } from '../../application/usecases/auth
 import { requestDeleteAccountUseCase } from '../../application/usecases/auth/requestDeleteAccountUseCase';
 import { confirmDeleteAccountUseCase } from '../../application/usecases/auth/confirmDeleteAccountUseCase';
 
+
 export const AuthController = {
   //Signup - Register
   async signup(req: Request, res: Response): Promise<void>  {
-    const { name, email, password, confirmPassword, photoUrl } = req.body;
+    const { name, email, password, confirmPassword, birthDate, photoUrl } = req.body;
 
-    // Verifica se as senhas corretas
     if (password !== confirmPassword) {
       throw new Error('Passwords do not match');
     }
-    const birthDate = moment(req.body.birthDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
-    
+
+    if (!email) {
+      res.status(400).json({ error: "Email é obrigatório!" });
+      return
+    }
+
     try {
-      // Chamando o caso de uso com as dependências
       const result = await signupUseCase(
         {
-          name, email, password, birthDate, photoUrl,
+          name, 
+          email, 
+          password, 
+          birthDate, 
+          photoUrl,
           isActive: false,
           isVerified: false,
         },
         UserRepository,
-        hashingService
+        hashingService,
+        refreshTokenRepository
       );
 
       res.status(201).json({
         success: true,
-        message: 'Your account has been created successfully',
         data: result,
+        message: 'Your account has been created successfully',
       });
     } catch (error: any) {
-      res.status(400).json({ success: false, error: error.message });
+      res.status(500).json({ success: false, error: error.message });
     }
   },
 
@@ -57,28 +65,20 @@ export const AuthController = {
   async signin(req: Request, res: Response): Promise<void>  {
     const { email, password } = req.body;
     try {
-      const result = await signInUseCase(email, password, UserRepository, hashingService );
-      
-      // Configura os cookies
-      res.cookie('Authorization', `Bearer ${result.accessToken}`, {
-        expires: new Date(Date.now() + 15 * 60 * 1000), // 15 minutos
-        httpOnly: process.env.NODE_ENV === 'production',
-        secure: process.env.NODE_ENV === 'production',
-      });
-
-      res.cookie('RefreshToken', result.refreshToken, {
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
-        httpOnly: process.env.NODE_ENV === 'production',
-        secure: process.env.NODE_ENV === 'production',
-      });
+      const result = await signInUseCase(
+        email, 
+        password, 
+        UserRepository, 
+        hashingService,
+        refreshTokenRepository
+      );
 
       res.status(200).json({
         success: true,
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
-        message: result.message,
+        message: 'Logged in successfully'
       });
-
     } catch (error: any) {
       console.log('Error in signin: ', error);
       res.status(400).json({  success: false, message: `${error.message}`  });
@@ -86,35 +86,36 @@ export const AuthController = {
   },
 
   // Refresh Token - Renovar token
-  async refreshToken(req: Request, res: Response): Promise<void>  {
-    const refreshToken = req.cookies['RefreshToken'];
+  async refreshToken(req: Request, res: Response): Promise<any>  {
+    const { refreshToken } = req.body
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: 'No refresh token provided' });
+    }
     try {
-      const newToken = await refreshTokenUseCase (refreshToken, refreshTokenRepository);
-
-      res.cookie('Authorization', `Bearer ${newToken}`, {
-        expires: new Date(Date.now() + 15 * 60 * 1000), // 15 minutos
-        httpOnly: process.env.NODE_ENV === 'production',
-        secure: process.env.NODE_ENV === 'production',
-      });
-      res.status(200).json({
+      const newToken = await refreshTokenUseCase(
+        refreshToken, 
+        refreshTokenRepository,
+        UserRepository
+      );
+      return res.status(200).json({
         success: true,
-        accessToken: newToken,
+        accessToken: newToken.newAccessToken,
       });
     } catch (error) {
-      res.status(401).json({ success: false, message: 'Invalid refresh token' });
+      return res.status(401).json({ success: false, message: 'Invalid refresh token' });
     }
   },
 
   // Logout - Sair
   async signout(req: Request, res: Response): Promise<void>  {
-    const refreshToken = req.cookies['RefreshToken'];
+    const { refreshToken } = req.body
+    
     if (!refreshToken) {
       res.status(400).json({ success: false, message: 'No refresh token provided' });
       return
     }
     try {
       await signoutUseCase(refreshToken, refreshTokenRepository);
-      res.clearCookie('Authorization');
       res.status(200).json({ success: true, message: 'Logged out successfully' });
     } catch (error) {
       console.error('Error during sign out from all devices:', error);
@@ -124,14 +125,13 @@ export const AuthController = {
 
   // SignoutAll - Sair de todos os dispositivos
   async signoutAll(req: Request, res: Response): Promise<void>{
-    const refreshToken = req.cookies['RefreshToken'];
+    const refreshToken = req.body
     if (!refreshToken) {
       res.status(400).json({ success: false, message: 'No refresh token provided' });
       return
     }
     try {
       await signoutAllUseCase(refreshToken, refreshTokenRepository);
-      res.clearCookie('RefreshToken');
       res.status(200).json({ success: true, message: 'Logged out from all devices' });
     } catch (error) {
       console.error('Error during sign out from all devices:', error);
@@ -169,6 +169,11 @@ export const AuthController = {
   async changePassword(req: Request, res: Response): Promise<void>{
     const { id, isVerified } = req.user;
     const { oldPassword, newPassword } = req.body;
+
+    if (!isVerified) {
+      res.status(403).json({ success: false, message: 'User not verified' });
+    }
+    
     try {
       const message = await changePasswordUseCase(
         id, 
@@ -219,6 +224,7 @@ export const AuthController = {
       res.status(error.status || 400).json({ success: false, message: error.message });
     }
   },   
+  
   async requestDeleteAccount(req: Request, res: Response): Promise<void> {
     const { id } = req.user;
     try {

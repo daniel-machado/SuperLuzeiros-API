@@ -68,7 +68,7 @@ UnitEvaluation.init({
     allowNull: false,
   },
   examScore: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
     defaultValue: 0,
   },
@@ -83,7 +83,7 @@ UnitEvaluation.init({
     defaultValue: 0,
   },
   totalScore: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
     defaultValue: 0,
   },

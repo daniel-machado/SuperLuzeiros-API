@@ -13,14 +13,18 @@ import { getByIdClassUserUseCase } from '../../application/usecases/ClassUser/ge
 import { getByUserAndClassUserUseCase } from '../../application/usecases/ClassUser/getByUserAndClassUserUseCase';
 import { getAllByUserClassUserUseCase } from '../../application/usecases/ClassUser/getAllByUserClassUserUseCase';
 import { getAllByClassUserUseCase } from '../../application/usecases/ClassUser/getAllByClassUserUseCase';
-import { create } from 'domain';
-
 
 export const ClassUserController = {
 
   async create(req: Request, res: Response): Promise<void>  {
     const { userId, classId, assignedBy } = req.body;
     try {
+    
+      if (!userId || !classId || !assignedBy) {
+        res.status(400).json({ message: 'Campos obrigatórios faltando' });
+        return
+      }
+
       const result = await createClassUserUseCase( 
         {userId, classId, assignedBy},  
         UserClassRepository, 
@@ -106,7 +110,7 @@ export const ClassUserController = {
   },
 
   async getAllByUser(req: Request, res: Response): Promise<void>  {
-    const { userId } = req.body
+    const { userId } = req.params
     try {
       const result = await getAllByUserClassUserUseCase(userId, UserClassRepository);
       res.status(200).json({

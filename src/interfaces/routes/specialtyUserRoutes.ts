@@ -9,37 +9,37 @@ const router: Router = express.Router();
 
 router.post('/create', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   SpecialtyUserController.create
 ); 
 
 router.get('/list', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   SpecialtyUserController.getAll
 ); 
 
 router.get('/list-one/:id', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   SpecialtyUserController.getOneById
 );
 
-router.get('/list-user-and-specialty', 
+router.get('/list-user-and-specialty/user/:userId/specialty/:specialtyId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   SpecialtyUserController.getByUserAndSpecialty
 );
 
-router.get('/list-all-user', 
+router.get('/list-all-user/:userId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   SpecialtyUserController.getAllByUser
 );
 
-router.get('/list-all-specialty', 
+router.get('/list-all-specialty/:specialtyId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   SpecialtyUserController.getAllBySpecialty
 );
 

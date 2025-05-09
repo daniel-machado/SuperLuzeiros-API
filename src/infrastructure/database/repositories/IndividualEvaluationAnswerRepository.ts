@@ -1,15 +1,18 @@
 
-import { UnitEvaluation, IndividualEvaluationQuestion, User, Unit } from '../models';
+import { Op } from 'sequelize';
+import { UnitEvaluation, IndividualEvaluationQuestion, User, Unit, UnitDbv } from '../models';
 import { IIndividualEvaluationAnswer, IndividualEvaluationAnswer } from '../models/IndividualEvaluationAnswer';
 
 export interface IIndividualEvaluationAnswerRepository {
-  create(userId: string, individualEvaluationId: string, questionId: string, answer: string, score: number, week: number): Promise<IndividualEvaluationAnswer>;
+  create(userId: string, individualEvaluationId: string, questionId: string, answer: string, score: number, week: number, observation: string): Promise<IndividualEvaluationAnswer>;
   findAll(): Promise<IndividualEvaluationAnswer[]>;
   findAllByUser(unitId: string): Promise<IndividualEvaluationAnswer[]>;
   findAllToWeek(userId: string, week: number, questionId?: string): Promise<IndividualEvaluationAnswer[]>;
   findOne(id: string): Promise<IndividualEvaluationAnswer | null>;
   update(id: string, data: Partial<IIndividualEvaluationAnswer>): Promise<IndividualEvaluationAnswer>;
   delete(id: string): Promise<any>;
+  countDbvsThatAnsweredQuestionInUnit(unitId: string, questionId: string, week: number): Promise<number>
+
 }
 
 export const IndividualEvaluationAnswerRepository = {
@@ -18,7 +21,8 @@ export const IndividualEvaluationAnswerRepository = {
                 questionId: string, 
                 answer: string, 
                 score: number, 
-                week: number
+                week: number,
+                observation: string
               ): Promise<IndividualEvaluationAnswer> => {
     return await IndividualEvaluationAnswer.create({ 
       userId, 
@@ -26,7 +30,8 @@ export const IndividualEvaluationAnswerRepository = {
       questionId, 
       answer, 
       score,
-      week
+      week,
+      observation
     });
   },
   
@@ -88,4 +93,33 @@ export const IndividualEvaluationAnswerRepository = {
     if (!answer) throw new Error('Resposta não encontrada.');
     await answer.destroy();
   },
+
+  countDbvsThatAnsweredQuestionInUnit: async (unitId: string, questionId: string, week?: number): Promise<number> => {
+    const dbvUserIds = await UnitDbv.findAll({
+      where: { unitId },
+      attributes: ['userId']
+    });
+  
+  
+    const userIds = dbvUserIds.map(dbv => dbv.userId);
+  
+  
+    const whereClause: any = {
+      userId: { [Op.in]: userIds },
+      questionId
+    };
+  
+  
+    if (week !== undefined) {
+      whereClause.week = week;
+    }
+  
+  
+    return await IndividualEvaluationAnswer.count({
+      where: whereClause,
+      distinct: true,
+      col: 'userId'
+    });
+  }
+  
 }

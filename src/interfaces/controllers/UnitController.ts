@@ -14,6 +14,7 @@ import { addCounselorToUnitUseCase } from '../../application/usecases/units/addC
 import { addDbvToUnitUseCase } from '../../application/usecases/units/addDbvToUnitUseCase';
 import { removeCounselorFromUnitUseCase } from '../../application/usecases/units/removeCounselorFromUnitUseCase';
 import { removeDbvFromUnitUseCase } from '../../application/usecases/units/removeDbvFromUnitUseCase';
+import { existCounselorUnitUseCase } from '../../application/usecases/units/existCounselorUnitUseCase';
 
 export const unitController = {
 
@@ -69,6 +70,8 @@ export const unitController = {
     const { id } = req.params;
     const { name, photo } = req.body;
 
+    console.log(name, photo)
+
     try {
       const updatedUnit = await updateUnitUseCase(
         id, name, photo, unitRepository);
@@ -99,6 +102,17 @@ export const unitController = {
     const { userId } = req.body;
     try {
       const result = await addCounselorToUnitUseCase(unitId, userId, unitRepository, UserRepository);
+      res.json({success: true, result});
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Verificar se o conselheiro já está na unidade
+  async existeUnitCounselor(req: Request, res: Response): Promise<void>  {
+    const { userId } = req.params;
+    try {
+      const result = await existCounselorUnitUseCase(userId, unitRepository);
       res.json({success: true, result});
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });

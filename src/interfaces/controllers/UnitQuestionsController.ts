@@ -12,8 +12,8 @@ export const UnitQuestionsController = {
 
   async createUnitQuestion(req: Request, res: Response): Promise<void>  {
       try {
-        const { question, points } = req.body;
-        const newQuestion = await createUnitQuestionsUseCase(question, points, UnitEvaluationQuestionRepository);
+        const { question, points, typeQuestion, description } = req.body;
+        const newQuestion = await createUnitQuestionsUseCase(question, points, typeQuestion, UnitEvaluationQuestionRepository, description,);
         res.status(201).json(newQuestion);
     } catch (error: any) {
         res.status(400).json({ error: error.message });

@@ -15,19 +15,19 @@ router.post('/create',
 
 router.get('/list-all', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   classController.getAllClass
 ); 
 
 router.get('/list-class-type', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   classController.getByType
 );
 
 router.get('/list-one-id/:id', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   classController.getById
 );
 

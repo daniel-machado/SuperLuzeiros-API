@@ -7,7 +7,7 @@ export const createQuizUserUseCase = async (
 ) => {
 
   const existingQuiz = await quizRepository.findBySpecialty(data.specialtyId);
-  if (existingQuiz) throw new Error("Já existe um Quiz para essa especialidade");
+  if (existingQuiz && existingQuiz.length > 0) throw new Error("Já existe um Quiz para essa especialidade");
 
   const newQuiz = await quizRepository.create(data);
 

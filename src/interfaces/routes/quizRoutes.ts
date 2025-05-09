@@ -27,19 +27,19 @@ router.delete('/delete/:id',
 
 router.get('/list', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   quizController.getAllQuiz
 ); 
 
-router.get('/list-quiz-specialty', 
+router.get('/list-quiz-specialty/:specialtyId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   quizController.getBySpecialty
 ); 
 
 router.get('/quiz/:id', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   quizController.getQuiz
 ); 
 

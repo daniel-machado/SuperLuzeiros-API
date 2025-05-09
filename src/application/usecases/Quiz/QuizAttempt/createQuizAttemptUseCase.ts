@@ -28,15 +28,14 @@ export const createQuizAttemptUseCase = async (
     const failedQuizzes = attemptExisting.failedQuizzes || 0;
     const blockDays = failedQuizzes >= 3 ? 10 : 3; // Definição do tempo de bloqueio
 
-    if (diffDays < blockDays) {
-      throw new Error(`Você só pode refazer esse quiz após ${blockDays} dias.`);
-    }
+    // if (diffDays < blockDays) {
+    //   throw new Error(`Você só pode refazer esse quiz após ${blockDays} dias.`);
+    // }
   }
-
   if (!answers || answers.length === 0) {
     throw new Error("Nenhuma resposta foi enviada.");
   }
-
+  
   // Obtém as perguntas respondidas
   const questionIds = answers.map((a: any) => a.questionId);
   if (!questionIds.length) {
@@ -82,15 +81,33 @@ export const createQuizAttemptUseCase = async (
     throw new Error("Quiz não encontrado.");
   }
 
+  // const userSpe = await userSpecialtyRepository.findByUserAndSpecialty(userId, quiz.specialtyId);
+  // if (!userSpe) {
+  //   await userSpecialtyRepository.create({userId, specialtyId: quiz.specialtyId});
+  // }
+
+  // // Atualiza se o usuário foi aprovado no quiz
+  // if (userSpe) {
+  //   await userSpecialtyRepository.update(userSpe.id as string, {
+  //     isQuizApproved: score >= 7
+  //   });
+  // }
   const userSpe = await userSpecialtyRepository.findByUserAndSpecialty(userId, quiz.specialtyId);
+
   if (!userSpe) {
-    throw new Error("Especialidade do usuário não encontrada.");
+      // Cria o registro se não existir
+      const newUserSpecialty = await userSpecialtyRepository.create({ userId, specialtyId: quiz.specialtyId });
+      
+      // Atualiza o campo isQuizApproved após a criação
+      await userSpecialtyRepository.update(newUserSpecialty.id as string, {
+          isQuizApproved: score >= 7
+      });
+  } else {
+      // Atualiza o campo isQuizApproved se o registro já existir
+      await userSpecialtyRepository.update(userSpe.id as string, {
+          isQuizApproved: score >= 7
+      });
   }
-
-  // Atualiza se o usuário foi aprovado no quiz
-  await userSpecialtyRepository.update(userSpe.id as string, {
-    isQuizApproved: score >= 7
-  });
-
+  
   return { newAttempt };
 };

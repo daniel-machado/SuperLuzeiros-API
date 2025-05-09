@@ -7,6 +7,7 @@ export interface IQuiz {
   id?: string;
   specialtyId: string;
   title: string;
+  is_active: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -17,6 +18,7 @@ export class Quiz extends Model<IQuiz, IQuizAttributes> {
   public id!: string;
   public specialtyId!: string;
   public title!: string;
+  public is_active!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -44,6 +46,11 @@ Quiz.init(
     title: { 
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     },
     createdAt: {
       type: DataTypes.DATE,

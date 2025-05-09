@@ -15,7 +15,7 @@ export const UnitAnswerController = {
 
   async createUnitAnswer(req: Request, res: Response): Promise<void>  {
     try {
-      const { unitId, questionId, answer, week } = req.body;
+      const { unitId, questionId, answer, week, observation } = req.body;
       const newAnswer = await saveUnitAnswerUseCase(
         unitId, 
         questionId, 
@@ -24,7 +24,8 @@ export const UnitAnswerController = {
         UnitEvaluationQuestionRepository,
         UnitEvaluationAnswerRepository,
         UnitEvaluationRepository,
-        UnitRankingRepository
+        UnitRankingRepository,
+        observation
       );
       res.status(201).json({
         success: true,

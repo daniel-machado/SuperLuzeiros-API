@@ -2,7 +2,6 @@
 import { IUserAttributes } from '../../../infrastructure/database/models/User';
 import { IUnitRepository } from '../../../infrastructure/database/repositories/UnitRepository';
 import { IUserRepository } from '../../../infrastructure/database/repositories/UserRepository';
-
 interface result {
   user: IUserAttributes,
 }
@@ -28,15 +27,16 @@ export const approveUserUseCase = async (
 
   // Se for 'dbv', precisa de uma unidade
   if (role === 'dbv') {
-    if(!unitId){
-      throw new Error ('Unit must be provided for dbv role');
+    if (!unitId) {
+      throw new Error('Unit must be provided for dbv role');
     }
-    
+  
     // Verifica se a unidade existe
-    const unit = await unitRepository.getUnitById(unitId);
-    if (!unit) {
+    const unitExists = await unitRepository.getUnitById(unitId);
+    if (!unitExists) {
       throw new Error('Unit does not exist!');
     }
+  
     // Atualiza usuário com unidade
     await userRepository.updateUser(userId, { role, status: 'approved' }, unitId);
   } else {

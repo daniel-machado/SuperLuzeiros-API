@@ -21,10 +21,12 @@ export const IndividualAnswerController = {
 
   async createAnswer(req: Request, res: Response): Promise<void>  {
     try {
-      const { userId, questionId, answer, week } = req.body;
+      const { userId, questionId, counselorId, evaluationDate, answer, week, observation } = req.body;
       const newAnswer = await createAnswerUseCase(
         userId, 
         questionId, 
+        counselorId,
+        evaluationDate,
         answer,
         week,
         IndividualEvaluationAnswerRepository,
@@ -35,7 +37,8 @@ export const IndividualAnswerController = {
         unitRepository,
 
         UnitEvaluationRepository,
-        UnitRankingRepository
+        UnitRankingRepository,
+        observation
       );
       res.status(201).json({
         success: true,

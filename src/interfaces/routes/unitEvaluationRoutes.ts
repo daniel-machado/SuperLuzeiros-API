@@ -23,35 +23,35 @@ router.get('/calculate-point',
 // list all evaluation
 router.get('/list-all', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitEvaluationController.listUnitEvaluation
 ); 
 
 // list by ID
 router.get('/list/:id', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitEvaluationController.listUnitEvaluationGetById
 ); 
 
 // list all evaluation unit
 router.get('/list-all-evaluation-unit/:unitId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitEvaluationController.listUnitEvaluationFromUnit
 ); 
 
 // list all evaluation Active by Id
 router.get('/evaluation-active/:unitId', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitEvaluationController.listActiveEvaluationByUnitId
 ); 
 
 // list all evaluation unit Active
 router.get('/evaluations-actives', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitEvaluationController.listActiveUnitEvaluationAll
 ); 
 

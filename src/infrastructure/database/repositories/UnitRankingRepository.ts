@@ -50,7 +50,7 @@ export const UnitRankingRepository  = {
         {
           model: Unit,
           as: 'unitRank',
-          attributes: ["name"]
+          attributes: ["name", "photo" ]
         } 
       ],
       order: [["totalScore", "DESC"]], // Ordenando do maior para o menor
@@ -64,7 +64,7 @@ export const UnitRankingRepository  = {
         {
           model: Unit,
           as: 'unitRank',
-          attributes: ["name"]
+          attributes: ["name", "photo"]
         } 
       ],
       attributes: [

@@ -79,7 +79,7 @@ export const UnitEvaluationController = {
     }
   },
 
-    // Listar Todas Evaluations
+    // Listar Todas Evaluations aberta de uma unidade
     async listActiveEvaluationByUnitId(req: Request, res: Response): Promise<void>  {
       const { unitId } = req.params;
       try {
@@ -90,7 +90,7 @@ export const UnitEvaluationController = {
       }
     },
 
-      // Listar Todas Evaluations
+      // Listar Todas Evaluations Abertas
   async listActiveUnitEvaluationAll(req: Request, res: Response): Promise<void>  {
     try {
       const evaluations = await listActiveUnitEvaluationAllUseCase(UnitEvaluationRepository );

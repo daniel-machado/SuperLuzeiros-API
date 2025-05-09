@@ -17,7 +17,7 @@ router.post('/create-question',
 // list all evaluation
 router.get('/list-questions', 
   authenticate,
-  authorize(['admin', 'director']),
+  //authorize(['admin', 'director']),
   UnitQuestionsController.listUnitQuestion
 ); 
 

@@ -1,4 +1,4 @@
-import { Unit, User } from '../models';
+import { Unit, UnitDbv, User } from '../models';
 import { IIndividualEvaluation, IndividualEvaluation } from '../models/IndividualEvaluation';
 
 export interface IIndividualEvaluationRepository {
@@ -11,6 +11,7 @@ export interface IIndividualEvaluationRepository {
   findActiveEvaluationByUser(userId: string): Promise<any>;
   getEvaluationByUser(userId: string): Promise<any>;
   findActiveEvaluationAll(): Promise<any>;
+  countEvaluatedDbvsByUnitAndWeek(unitId: string, week: number): Promise<any>;
 }
 
 export const IndividualEvaluationRepository = {
@@ -41,7 +42,7 @@ export const IndividualEvaluationRepository = {
         {
           model: User, // Relacionamento com a unidade
           as: "usersEvaluation",  // Nome do alias definido no relacionamento
-          attributes: ["id", "name"], // Busca o id e o nome da unidade
+          attributes: ["id", "name", "photoUrl"], // Busca o id e o nome da unidade
         },
       ],
       // attributes: [
@@ -66,7 +67,7 @@ export const IndividualEvaluationRepository = {
         {
           model: User, // Relacionamento com a unidade
           as: "usersEvaluation",  // Nome do alias definido no relacionamento
-          attributes: ["id", "name"], // Busca o id e o nome da unidade
+          attributes: ["id", "name", "photoUrl"], // Busca o id e o nome da unidade
         },
       ],
       
@@ -119,6 +120,22 @@ export const IndividualEvaluationRepository = {
       order: [["createdAt", "DESC"]], // Pega a mais recente
     });
   },
+  countEvaluatedDbvsByUnitAndWeek: async (unitId: string, week: number): Promise<any> => {
+    const dbvsInUnit = await UnitDbv.findAll({
+      where: { unitId },
+      attributes: ['userId']
+    });
+    const userIds = dbvsInUnit.map( d => d.userId);
 
+    if(userIds.length === 0) return 0;
 
+    //Contar quantos desses usuário têm avaliação naquela semana
+    const count = await IndividualEvaluation.count({
+      where: {
+        userId: userIds,
+        week
+      }
+    })
+    return count;
+  }
 }

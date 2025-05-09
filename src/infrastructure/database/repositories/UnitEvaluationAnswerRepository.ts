@@ -3,7 +3,7 @@ import { Unit, UnitEvaluation, UnitEvaluationQuestion } from '../models';
 import { IUnitEvaluationAnswer, UnitEvaluationAnswer } from '../models/UnitEvaluationAnswer';
 
 export interface IUnitEvaluationAnswerRepository {
-  create(unitId: string, unitEvaluationId: string, questionId: string, answer: string, score: string, week: number): Promise<UnitEvaluationAnswer>;
+  create(unitId: string, unitEvaluationId: string, questionId: string, answer: string, score: string, week: number, observation?: string): Promise<UnitEvaluationAnswer>;
   findAll(unitId: string): Promise<UnitEvaluationAnswer[]>;
   findById(id: string): Promise<UnitEvaluationAnswer | null>;
   findAllAnswer(): Promise<UnitEvaluationAnswer[]>;
@@ -18,7 +18,8 @@ export const UnitEvaluationAnswerRepository = {
                 questionId: string, 
                 answer: string, 
                 score: string, 
-                week: number
+                week: number,
+                observation?: string
               ): Promise<UnitEvaluationAnswer> => {
     return await UnitEvaluationAnswer.create({ 
       unitId, 
@@ -26,7 +27,8 @@ export const UnitEvaluationAnswerRepository = {
       questionId, 
       answer, 
       score,
-      week
+      week,
+      observation
     });
   },
   

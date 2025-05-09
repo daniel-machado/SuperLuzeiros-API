@@ -46,7 +46,12 @@ export const UserSpecialtyRepository = {
         { 
           model: User, 
           as: "specialtyUser", 
-          attributes: ["name"],
+          attributes: ["name", "photoUrl"],
+        },
+        {
+          model: Specialty,
+          as: "specialtyInfo",
+          attributes: ["name", "category", "emblem"],
         },
       ],
     });
@@ -73,7 +78,7 @@ export const UserSpecialtyRepository = {
         {
           model: Specialty,
           as: "specialtyInfo",
-          attributes: ["name"],
+          attributes: ["name", "emblem"],
         },
       ],
     });
@@ -124,7 +129,7 @@ export const UserSpecialtyRepository = {
       updates.leadApproval = true;
       updates.leadApprovalAt = new Date();
       updates.approvalStatus = 'waiting_by_director';
-    } else if (approverRole === 'director') {
+    } else if (approverRole === 'director' || approverRole === "admin") {
       updates.directorApproval = true;
       updates.directorApprovalAt = new Date();
       updates.approvalStatus = 'approved';
@@ -146,6 +151,7 @@ export const UserSpecialtyRepository = {
         leadApproval: false,
         directorApproval: false,
         approvalStatus: 'pending' as StatusSpecialty, 
+        report: sequelize.literal(`'[]'::jsonb`),
         rejectionComments: sequelize.fn(
           'jsonb_set', 
           sequelize.col('rejectionComments'), 
