@@ -1,5 +1,5 @@
 module.exports = {
-  up: async (queryInterface) => {
+  up: async (queryInterface: any) => {
     await queryInterface.bulkInsert('classes', [
       // 🔹 Classes Regulares
       { id: '1', name: 'Amigo', type: 'regular', minAge: 10, maxAge: 10, createdAt: new Date() },
@@ -23,7 +23,7 @@ module.exports = {
       { id: '15', name: 'Líder Master Avançado', type: 'leadership', minAge: 21, maxAge: 21, createdAt: new Date() },
     ]);
   },
-  down: async (queryInterface) => {
+  down: async (queryInterface: any) => {
     await queryInterface.bulkDelete('classes', null, {});
   },
 };
