@@ -1,5 +1,5 @@
 
-/// <reference path="../../shared/express.d.ts" />
+/// <reference path="../../shared/types/express.d.ts" />
 
 // src/interfaces/middlewares/authMiddleware.ts
 import jwt from 'jsonwebtoken';
