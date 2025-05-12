@@ -15,6 +15,7 @@ import { addDbvToUnitUseCase } from '../../application/usecases/units/addDbvToUn
 import { removeCounselorFromUnitUseCase } from '../../application/usecases/units/removeCounselorFromUnitUseCase';
 import { removeDbvFromUnitUseCase } from '../../application/usecases/units/removeDbvFromUnitUseCase';
 import { existCounselorUnitUseCase } from '../../application/usecases/units/existCounselorUnitUseCase';
+import { existDbvUnitUseCase } from '../../application/usecases/units/existDbvUnitUseCase';
 
 export const unitController = {
 
@@ -118,6 +119,17 @@ export const unitController = {
       res.status(500).json({ success: false, error: error.message });
     }
   },
+
+    // Verificar se o dbv já está na unidade
+    async existeUnitDbv(req: Request, res: Response): Promise<void>  {
+      const { userId } = req.params;
+      try {
+        const result = await existDbvUnitUseCase(userId, unitRepository);
+        res.json({success: true, result});
+      } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+      }
+    },
 
   // Adicionar Desbravador
   async addDbvToUnit(req: Request, res: Response): Promise<void>  {

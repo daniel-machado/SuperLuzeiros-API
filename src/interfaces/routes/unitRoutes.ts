@@ -54,6 +54,12 @@ router.get('/exist-counselor-unit/:userId',
   unitController.existeUnitCounselor
 );
 
+// Verificar se o conselheiro já está na unidade
+router.get('/exist-dbv-unit/:userId', 
+  authenticate,
+  //authorize(['admin', 'director', 'counselor']),
+  unitController.existeUnitDbv
+);
 // Adicionar dbv
 router.post('/:unitId/dbvs',   
   authenticate,
