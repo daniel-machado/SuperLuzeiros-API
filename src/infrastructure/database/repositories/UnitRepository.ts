@@ -77,7 +77,7 @@ export const unitRepository = {
             {
               model: User,
               as: "counselor", // Nome do alias definido no relacionamento
-              attributes: ["id", "name"], // Busca o nome e o id do User associado
+              attributes: ["id", "name", "photoUrl"], // Busca o nome e o id do User associado
             },
           ],
           attributes: ["id"]
@@ -89,7 +89,7 @@ export const unitRepository = {
             {
               model: User,
               as: "dbv", // Se UnitDbv também se relaciona com User
-              attributes: ["id", "name"], 
+              attributes: ["id", "name", "photoUrl"], 
             },
           ],
           attributes: ["id"]

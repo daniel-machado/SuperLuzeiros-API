@@ -78,6 +78,13 @@ export const IndividualEvaluationRepository = {
   getEvaluationByUser: async (userId: string): Promise<any> => {
     return await IndividualEvaluation.findAll({
       where: { userId },
+      include: [
+        {
+          model: User,
+          as: "usersEvaluation",
+          attributes: ["id", "name", "photoUrl"],
+        }
+      ],
       order: [["createdAt", "DESC"]], // Pega a mais recente
     });
   },

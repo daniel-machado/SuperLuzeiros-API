@@ -28,7 +28,16 @@ export const saveUnitAnswerUseCase = async (
   const unitEvaluation = await unitEvaluationRepository.getUnitEvaluationByUnitAndWeek(unitId, week);
   if (!unitEvaluation) throw new Error("Não há avaliação ativa para essa unidade.");
 
-  const score = answer ? question.points : 0; // Se a resposta for positiva, atribui os pontos.
+  //const score = answer ? question.points : 0; // Se a resposta for positiva, atribui os pontos.
+    // Regra de pontuação individual
+    let score = 0;
+    if (question.typeQuestion === 'yes_no') {
+      score = answer.toLowerCase() === 'sim' ? question.points : 0;
+    } else if (question.typeQuestion === 'number' && answer) {
+      score = question.points;
+    } else if (question.typeQuestion === 'text' && answer.trim() !== '') {
+      score = question.points;
+    }
 
   const newAnswer = await unitEvaluationAnswerRepository.create(
     unitId, 
