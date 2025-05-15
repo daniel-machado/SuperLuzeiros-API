@@ -133,6 +133,7 @@ export const SpecialtyUserController = {
   async sendReport(req: Request, res: Response): Promise<void>  {
     const { id } = req.params;
     const { userId, specialtyId, report } = req.body
+
     try {
       const result = await sendReportUserSpecialtyUseCase(id, userId, specialtyId, report, UserSpecialtyRepository);
       res.status(200).json({

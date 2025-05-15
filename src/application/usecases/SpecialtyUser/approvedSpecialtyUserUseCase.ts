@@ -29,6 +29,11 @@ export const approvedSpecialtyUserUseCase = async (
     throw new Error("Especialidade não encontrada.");
   }
 
+  const userRoleId = await userRepository.findUserById(userId);
+  if(!userRoleId){
+    throw new Error("Usuário não encontrado");
+  }
+
   const user = await userRepository.findUserById(userIdApproved);
   const approverRole = user?.role as string;
   if (approverRole !== "director" && approverRole !== "admin" && approverRole !== "lead" && approverRole !== "counselor") {
@@ -155,11 +160,16 @@ export const approvedSpecialtyUserUseCase = async (
     throw new Error("Especialidade já aprovada.");
   }
 
+  if (!userRoleId.role) {
+    throw new Error("Usuário não possui um papel definido.");
+  }
+  
   const approved = await userSpecialtyRepository.approveReport(
     userId, 
     specialtyId, 
     approverRole, 
-    comment
+    comment,
+    userRoleId.role,
   );
 
   return {

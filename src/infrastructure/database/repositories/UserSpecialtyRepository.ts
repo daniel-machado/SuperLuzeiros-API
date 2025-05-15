@@ -14,8 +14,8 @@ export interface IUserSpecialtyRepository {
   findByUserAndSpecialty(userId: string, specialtyId: string): Promise<IUserSpecialty | null>;  
   findAllByUser(userId: string): Promise<IUserSpecialty[] | null>;
   findAllBySpecialty(specialtyId: string): Promise<IUserSpecialty[] | null>;
-  sendReportUser(userId: string, specialtyId: string, report: string): Promise<IUserSpecialty | null>;
-  approveReport(userId: string, specialtyId: string, approverRole: string, comments: string): Promise<IUserSpecialty | null>;
+  sendReportUser(userId: string, specialtyId: string, report: string, role: string): Promise<IUserSpecialty | null>;
+  approveReport(userId: string, specialtyId: string, approverRole: string, comments: string, role: string): Promise<IUserSpecialty | null>;
   rejectReport(userId: string, specialtyId: string, approverRole: string, comments: string): Promise<IUserSpecialty | null>;
 }
 
@@ -103,31 +103,33 @@ export const UserSpecialtyRepository = {
     });
   },
 
-  sendReportUser: async (userId: string, specialtyId: string, report: string): Promise<any> => {
-      const updates: any = {
-          report: sequelize.fn(
-              'jsonb_set', 
-              sequelize.col('report'), 
-              '{999999}',  // Adiciona ao final do array
-              sequelize.literal(`'${JSON.stringify(report)}'::jsonb`),
-              true
-          ),
-          approvalStatus: 'waiting_by_counselor' as StatusSpecialty
-      };
+  sendReportUser: async (userId: string, specialtyId: string, report: string, role: string): Promise<any> => {
+    console.log(role, report);
+    const updates: any = {
+        report: sequelize.fn(
+            'jsonb_set', 
+            sequelize.col('report'), 
+            '{999999}',  // Adiciona ao final do array
+            sequelize.literal(`'${JSON.stringify(report).replace(/'/g, "''")}'::jsonb`),
+            true
+        ),
+        approvalStatus: 'waiting_by_counselor' as StatusSpecialty
+    };
 
-      if (userId !== "dbv") {
-          updates.counselorApproval = true;
-          updates.counselorApprovalAt = new Date();
-          updates.approvalStatus = 'waiting_by_lead';
-      }
+    if (role !== "dbv") {
+        updates.counselorApproval = true;
+        updates.counselorApprovalAt = new Date();
+        updates.approvalStatus = 'waiting_by_lead';
+    }
 
-      return await UserSpecialty.update(updates, { where: { userId, specialtyId }});
-  },
+    return await UserSpecialty.update(updates, { where: { userId, specialtyId }});
+},
 
-  approveReport: async (userId: string, specialtyId: string, approverRole: string, comments: string): Promise<any> => {
+
+  approveReport: async (userId: string, specialtyId: string, approverRole: string, comments: string, role: string): Promise<any> => {
     const updates: any = {};
     
-    if (userId !== "dbv") {
+    if (role !== "dbv") {
       if (approverRole === 'lead') {
         updates.leadApproval = true;
         updates.leadApprovalAt = new Date();
