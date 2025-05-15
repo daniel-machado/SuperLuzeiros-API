@@ -39,7 +39,7 @@ export const UserRepository: IUserRepository = {
   findUserByStatusPending: async(): Promise<any> => {
     return await User.findAll({ 
       where: { status: "pending" },
-      attributes: ['id', 'name', 'email', 'role', 'photoUrl', 'status'],
+      attributes: ['id', 'name', 'email', 'role', 'photoUrl', 'status', 'isActive', 'isVerified'],
     });
   },
 

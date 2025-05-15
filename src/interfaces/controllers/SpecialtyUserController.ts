@@ -19,6 +19,7 @@ import { sendReportUserSpecialtyUseCase } from '../../application/usecases/Speci
 import { IndividualEvaluationRepository } from '../../infrastructure/database/repositories/IndividualEvaluationRepository';
 import { UnitEvaluationRepository } from '../../infrastructure/database/repositories/UnitEvaluationRepository';
 import { IndividualRankingRepository } from '../../infrastructure/database/repositories/InidividualRankingRepository';
+import { UnitRankingRepository } from '../../infrastructure/database/repositories/UnitRankingRepository';
 
 export const SpecialtyUserController = {
 
@@ -156,7 +157,11 @@ export const SpecialtyUserController = {
         UserRepository,
         IndividualEvaluationRepository,
         IndividualRankingRepository,
+
         UnitEvaluationRepository,
+        UnitRankingRepository,
+
+        unitRepository
       );
       res.status(201).json({
         success: true,

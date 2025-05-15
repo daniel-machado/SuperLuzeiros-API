@@ -29,6 +29,12 @@ router.get('/me',
   authenticate,
   UserController.me
 );
+
+router.get('/get-user/:userId', 
+  authenticate,
+  UserController.getUser
+);
+
 export default router;
 
 

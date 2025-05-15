@@ -42,6 +42,9 @@ import quizAnswerRoutes from './interfaces/routes/quizAnswerRoutes';
 import quizAttemptRoutes from './interfaces/routes/quizAttemptRoutes';
 import quizStatisticsRoutes from './interfaces/routes/quizStatisticsRoutes';
 
+// BIblical
+import biblicalCapitulosRoutes from './interfaces/routes/biblicalCapitulosRoutes'
+
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -116,6 +119,8 @@ sequelize.authenticate().then(() => {
     app.use('/api/quiz-answer', quizAnswerRoutes);
     app.use('/api/quiz-user-attempt', quizAttemptRoutes);
     app.use('/api/quiz-statistics', quizStatisticsRoutes);
+
+    app.use('/api/bible', biblicalCapitulosRoutes);
 
     
     app.listen(PORT, () => {

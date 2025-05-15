@@ -85,4 +85,22 @@ export const UserController = {
       res.status(500).json({ success: false, message: 'Erro interno no servidor' });
     }
   },  
+  // Buscar Usuário pelo ID
+  async getUser(req: Request, res: Response): Promise<void> {  
+    try {
+      const { userId } = req.params
+      const user = await FindMeUseCase(userId, UserRepository);
+      if (!user) {
+        res.status(404).json({ success: false, message: "Usuário não encontrado" });
+        return;
+      }
+      res.status(200).json({ 
+        success: true, 
+        message: 'Dados do Usuário',
+        user
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Erro interno no servidor' });
+    }
+  },  
 }

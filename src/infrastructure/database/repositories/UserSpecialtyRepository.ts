@@ -104,43 +104,63 @@ export const UserSpecialtyRepository = {
   },
 
   sendReportUser: async (userId: string, specialtyId: string, report: string): Promise<any> => {
-    return await UserSpecialty.update(
-      { 
-        report: sequelize.fn(
-          'jsonb_set', 
-          sequelize.col('report'), 
-          '{999999}',  // Adiciona ao final do array
-          sequelize.literal(`'${JSON.stringify(report)}'::jsonb`),
-          true
-        ),
-        approvalStatus: 'waiting_by_counselor' as StatusSpecialty
-      },
-      { where: { userId, specialtyId }}
-    );
+      const updates: any = {
+          report: sequelize.fn(
+              'jsonb_set', 
+              sequelize.col('report'), 
+              '{999999}',  // Adiciona ao final do array
+              sequelize.literal(`'${JSON.stringify(report)}'::jsonb`),
+              true
+          ),
+          approvalStatus: 'waiting_by_counselor' as StatusSpecialty
+      };
+
+      if (userId !== "dbv") {
+          updates.counselorApproval = true;
+          updates.counselorApprovalAt = new Date();
+          updates.approvalStatus = 'waiting_by_lead';
+      }
+
+      return await UserSpecialty.update(updates, { where: { userId, specialtyId }});
   },
 
   approveReport: async (userId: string, specialtyId: string, approverRole: string, comments: string): Promise<any> => {
     const updates: any = {};
-    if (approverRole === 'counselor') {
-      updates.counselorApproval = true;
-      updates.counselorApprovalAt = new Date();
-      updates.approvalStatus = 'waiting_by_lead';
-    } else if (approverRole === 'lead') {
-      updates.leadApproval = true;
-      updates.leadApprovalAt = new Date();
-      updates.approvalStatus = 'waiting_by_director';
-    } else if (approverRole === 'director' || approverRole === "admin") {
-      updates.directorApproval = true;
-      updates.directorApprovalAt = new Date();
-      updates.approvalStatus = 'approved';
+    
+    if (userId !== "dbv") {
+      if (approverRole === 'lead') {
+        updates.leadApproval = true;
+        updates.leadApprovalAt = new Date();
+        updates.approvalStatus = 'waiting_by_director';
+      } else if (approverRole === 'director' || approverRole === "admin") {
+        updates.directorApproval = true;
+        updates.directorApprovalAt = new Date();
+        updates.approvalStatus = 'approved';
+      }
+    } else {
+      if (approverRole === 'counselor') {
+        updates.counselorApproval = true;
+        updates.counselorApprovalAt = new Date();
+        updates.approvalStatus = 'waiting_by_lead';
+      } else if (approverRole === 'lead') {
+        updates.leadApproval = true;
+        updates.leadApprovalAt = new Date();
+        updates.approvalStatus = 'waiting_by_director';
+      } else if (approverRole === 'director' || approverRole === "admin") {
+        updates.directorApproval = true;
+        updates.directorApprovalAt = new Date();
+        updates.approvalStatus = 'approved';
+      }
     }
+
     updates.approvalComments = sequelize.fn(
       'jsonb_set', 
       sequelize.col('approvalComments'), 
       '{999999}',  // Adiciona ao final do array
       sequelize.literal(`'${JSON.stringify(comments)}'::jsonb`),
       true
-    )
+    );
+
     return await UserSpecialty.update(updates, { where: { userId, specialtyId } });
   },
 
