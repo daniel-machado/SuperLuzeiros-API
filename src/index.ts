@@ -60,6 +60,7 @@ sequelize.authenticate().then(() => {
       origin: [
         "http://localhost:5173", // Frontend Web (React/Vite)
         "https://luzeirosdonorte.com.br",
+        "https://d2p2io5k8ibrc9.cloudfront.net/",
         "http://seu-site.com", // Caso tenha um domínio em produção
         "exp://192.168.1.10:19000", // Expo Go no celular (React Native)
         "http://localhost" // Para aplicativos móveis (Android/iOS)
