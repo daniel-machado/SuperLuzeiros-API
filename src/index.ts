@@ -59,6 +59,7 @@ sequelize.authenticate().then(() => {
     app.use(cors({
       origin: [
         "http://localhost:5173", // Frontend Web (React/Vite)
+        "http://localhost:4173",
         "https://luzeirosdonorte.com.br",
         "https://d2p2io5k8ibrc9.cloudfront.net/",
         "http://seu-site.com", // Caso tenha um domínio em produção
