@@ -21,8 +21,8 @@ export const signupSchema: ObjectSchema = Joi.object({
           }),
     password: Joi.string()
           .min(6)
-          .required()
-          .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,}$')),
+          .required(),
+          //.pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,}$')),
     confirmPassword: Joi.ref('password'),
     photoUrl: Joi.string().uri().optional()
 });
@@ -37,7 +37,7 @@ export const signinSchema: ObjectSchema = Joi.object({
     }),
   password: Joi.string()
     .required()
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,}$')),
+    //.pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,}$')),
 });
 
 export const acceptCodeSchema: ObjectSchema = Joi.object({
