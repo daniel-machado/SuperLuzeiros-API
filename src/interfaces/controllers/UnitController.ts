@@ -100,7 +100,8 @@ export const unitController = {
   // Adicionar Conselheiro
   async addCounselorToUnit(req: Request, res: Response): Promise<void>  {
     const { unitId } = req.params;
-    const { userId } = req.body;
+    const {userId} = req.body
+
     try {
       const result = await addCounselorToUnitUseCase(unitId, userId, unitRepository, UserRepository);
       res.json({success: true, result});
@@ -134,7 +135,7 @@ export const unitController = {
   // Adicionar Desbravador
   async addDbvToUnit(req: Request, res: Response): Promise<void>  {
     const { unitId } = req.params;
-    const { userId } = req.body;
+    const { userId } = req.body
     try {
       const result = await addDbvToUnitUseCase(unitId, userId, unitRepository, UserRepository);
       res.json({success: true, result});
