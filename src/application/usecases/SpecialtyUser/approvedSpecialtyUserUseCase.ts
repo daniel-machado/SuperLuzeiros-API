@@ -37,9 +37,6 @@ export const approvedSpecialtyUserUseCase = async (
   const allowedRoles = ["director", "admin", "lead", "counselor"];
   if (!allowedRoles.includes(approverRole)) throw new Error("Usuário não autorizado para aprovação");
 
-  console.log("userRoleData.roleeeeee", userRoleData.role);
-  console.log("approverRoleeeeeee", approverRole);
-
   // 🔹 Validações de status da especialidade
   if (!userSpecialty.approvalStatus?.startsWith("waiting_by_")) {
     throw new Error("Este relatório não está aguardando aprovação.");

@@ -11,6 +11,8 @@ export interface IDailyVerseReading {
   verse: string;
   book: string;
   chapter: string
+  streak: number;
+  life: number;
   pointsEarned: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -25,6 +27,8 @@ export class DailyVerseReading extends Model<IDailyVerseReading, IDailyVerseRead
   public date!: Date;
   public readAt!: Date;
   public verse!: string;
+  public streak!: number;
+  public life!: number
   public book!: string;
   public chapter!: string;
   public pointsEarned!: number;
@@ -46,7 +50,7 @@ DailyVerseReading.init(
       allowNull: false,
     },
     date: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     readAt: {
@@ -64,6 +68,16 @@ DailyVerseReading.init(
     verse: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    streak: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    life: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
     },
     pointsEarned: {
       type: DataTypes.INTEGER,

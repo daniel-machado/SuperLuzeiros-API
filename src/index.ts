@@ -45,7 +45,7 @@ import quizStatisticsRoutes from './interfaces/routes/quizStatisticsRoutes';
 // BIblical
 import biblicalCapitulosRoutes from './interfaces/routes/biblicalCapitulosRoutes'
 
-// import dailyVerseRoutes from './interfaces/routes/dailyVerseRoutes'
+import dailyVerseRoutes from './interfaces/routes/dailyVerseRoutes'
 
 dotenv.config();
 
@@ -126,7 +126,7 @@ sequelize.authenticate().then(() => {
 
     app.use('/api/bible', biblicalCapitulosRoutes);
 
-    // app.use('/api/biblical-daily', dailyVerseRoutes);
+    app.use('/api/daily-reading', dailyVerseRoutes);
 
     
     app.listen(PORT, () => {
