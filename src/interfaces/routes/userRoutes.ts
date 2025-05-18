@@ -25,6 +25,11 @@ router.patch('/approve-user/:userId',
   UserController.approveUser
 );
 
+router.patch('/update-profile/:userId', 
+  authenticate,
+  UserController.updateProfile
+);
+
 router.get('/me', 
   authenticate,
   UserController.me

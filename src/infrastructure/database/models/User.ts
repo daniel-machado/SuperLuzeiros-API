@@ -23,6 +23,11 @@ export interface IUserAttributes {
   deleteAccountCode?: string; 
   deleteAccountCodeValidation?: number;
   status?: 'pending' | 'approved' | 'rejected';
+  facebook?: string;
+  linkedin?: string;
+  instagram?: string;
+  youtube?: string;
+  biografia?: string;   
 }
 
 // A interface para a criação do usuário (sem o id e sem createdAt e updatedAt, pois são gerados automaticamente)
@@ -47,6 +52,11 @@ export class User extends Model<IUserAttributes, IUserCreationAttributes> {
   public deleteAccountCode?: string; 
   public deleteAccountCodeValidation?: number;
   public status?: 'pending' | 'approved' | 'rejected';
+  public facebook?: string;
+  public linkedin?: string;
+  public instagram?: string;
+  public youtube?: string;
+  public biografia?: string;   
 }
 
 User.init(
@@ -131,7 +141,27 @@ User.init(
       type: DataTypes.ENUM("pending", "approved", "rejected"),
       allowNull: false,
       defaultValue: 'pending',
-    }
+    },
+    facebook: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    linkedin: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    instagram: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    youtube: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    biografia: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     sequelize,

@@ -9,6 +9,7 @@ import { approveUserUseCase } from '../../application/usecases/users/approveUser
 import { getAllUsersUseCase } from '../../application/usecases/users/getAllUsersUseCase';
 import { pendingUserUseCase } from '../../application/usecases/users/pendingUsersUseCase';
 import { FindMeUseCase } from '../../application/usecases/users/FindMeUserCase';
+import { updateUserUseCase } from '../../application/usecases/users/updateUserUseCase';
 
 
 export const UserController = {
@@ -60,6 +61,57 @@ export const UserController = {
       console.error("Error approving user:", error);
       res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
 
+    }
+  },
+
+  async updateProfile(req: Request, res: Response): Promise<void> {
+    const { userId } = req.params;
+    const {
+      facebook,
+      linkedin,
+      instagram,
+      youtube,
+      biografia,
+      photoUrl,
+      name,
+    } = req.body;
+  
+    try {
+      // Filtra apenas os campos definidos (não null ou undefined)
+      const userData = {
+        ...(facebook && { facebook }),
+        ...(name && { name }),
+        ...(linkedin && { linkedin }),
+        ...(instagram && { instagram }),
+        ...(youtube && { youtube }),
+        ...(biografia && { biografia }),
+        ...(photoUrl && { photoUrl }),
+      };
+  
+      // Verifica se há campos para atualizar
+      if (Object.keys(userData).length === 0) {
+        res.status(400).json({
+          success: false,
+          message: 'Nenhum campo válido para atualizar.'
+        });
+      }
+  
+      const result = await updateUserUseCase(userId, userData, UserRepository);
+  
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: 'usuário não encontrada.'
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        message: 'Dados atualizados',
+        result
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 

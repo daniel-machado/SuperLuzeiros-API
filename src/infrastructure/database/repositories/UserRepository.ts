@@ -25,7 +25,19 @@ export const UserRepository: IUserRepository = {
   },
   findAllUsers: async(): Promise<any> => {
     return await User.findAll({
-      attributes: ['id', 'name', 'email', 'birthDate', 'role', 'photoUrl', 'status'],
+      attributes: ['id', 
+        'name', 
+        'email', 
+        'birthDate', 
+        'role', 
+        'photoUrl', 
+        'status', 
+        'facebook',
+        'instagram',
+        'linkedin',
+        'youtube',
+        'biografia',
+      ],
     });
   },
 

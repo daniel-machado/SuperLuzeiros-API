@@ -17,96 +17,104 @@ export const dailyReadingController = {
    */
   async registerReading(req: Request, res: Response): Promise<void> {
     const {
-      userId,  // ID do usuário (deve vir do token de autenticação em produção)
-      book,    // Livro bíblico
-      chapter, // Capítulo
-      verse,   // Versículo
-      pointsEarned = 10 // Pontos ganhos pela leitura (opcional, valor padrão: 10)
+      userId,
+      book,
+      chapter,
+      verse,
+      pointsEarned = 10
     } = req.body;
 
 
-    // Validar campos obrigatórios
     if (!userId || !book || !chapter || !verse) {
       res.status(400).json({
-        error: "Os campos 'userId', 'book', 'chapter' e 'verse' são obrigatórios"
+        error: "Campos obrigatórios faltando",
+        requiredFields: ['userId', 'book', 'chapter', 'verse'],
+        received: Object.keys(req.body)
       });
       return;
     }
  
     try {
-      // Cria uma data para hoje às 00:00:00 no fuso horário local
       const today = new Date();
-      today.setHours(0,0,0,0);
+      today.setHours(0, 0, 0, 0);
      
-      // Preparar os dados para registro
       const readingData = {
         userId,
         book,
         chapter,
         verse,
         pointsEarned,
-        date: today, //Normaliza para o início do dia atual - Data atual sem hora/minuto/segundo
-        readAt: new Date(), // Data e hora atual completa
-        life: 0, // Será calculado no useCase
-        streak: 0 // Será calculado no useCase
+        date: today,
+        readAt: new Date(),
+        life: 0,
+        streak: 0
       };
 
-      // Registrar a leitura e obter informações atualizadas do streak
+
       const result = await registerDailyReadingUseCase(readingData, DailyVerseReadingRepository);
+
 
       res.status(201).json({
         success: true,
         message: 'Leitura registrada com sucesso',
-        result
+        data: result
       });
     } catch (error: any) {
-      // Se for um erro conhecido (já tem registro para hoje)
-      if (error.message === 'Já existe um registro de leitura para esta data.') {
-        // Obter informações atuais do streak para retornar mesmo com erro
-        try {
-          const streakInfo = await getUserStreakInfoUseCase(req.body.userId, DailyVerseReadingRepository);
-          
-          res.status(400).json({
-            success: false,
-            error: error.message,
-            streakInfo // Retorna as informações atuais do streak
-          });
-        } catch (infoError) {
-          res.status(400).json({
-            success: false,
-            error: error.message
-          });
-        }
+      if (error.name === 'ReadingExistsError') {
+        res.status(400).json({
+          success: false,
+          error: error.message,
+          streakInfo: error.streakInfo,
+          existingReadingId: error.existingReadingId
+        });
       } else {
-        // Erro interno do servidor
+        console.error('Erro no registro da leitura:', error);
         res.status(500).json({
           success: false,
-          error: error.message
+          error: 'Erro interno no servidor',
+          details: error.message
         });
-      }
+      }  
     }
   },
-  
+
   /**
    * Obtém as informações do streak atual do usuário
    */
   async getUserStreakInfo(req: Request, res: Response): Promise<void> {
     const { userId } = req.params;
-    
+   
     if (!userId) {
       res.status(400).json({
         error: "O parâmetro 'userId' é obrigatório"
       });
       return;
     }
-    console.log("use", userId)
+
+
     try {
       const streakInfo = await getUserStreakInfoUseCase(userId, DailyVerseReadingRepository);
-      console.log("Aq", streakInfo)
-      
+     
       res.status(200).json({
         success: true,
         streakInfo
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  },
+
+
+  async getAllReadingsWithUsers(req: Request, res: Response): Promise<void> {
+    try {
+      const readings = await DailyVerseReadingRepository.findByUserId(req.params.userId);
+      
+      res.status(200).json({
+        success: true,
+        data: readings || []
       });
     } catch (error: any) {
       res.status(500).json({

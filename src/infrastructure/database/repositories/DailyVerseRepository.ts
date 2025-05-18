@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
-import { IDailyVerseReading, DailyVerseReading } from '../models/dailyVerseReading'
-
+import { IDailyVerseReading, DailyVerseReading } from '../models/dailyVerseReading';
+import { User } from '../models';
 
 export interface IDailyVerseReadingRepository {
   create(data: IDailyVerseReading): Promise<IDailyVerseReading>;
@@ -12,53 +12,66 @@ export interface IDailyVerseReadingRepository {
   delete(id: string): Promise<void>;
   getConsecutiveReadingDays(userId: string): Promise<number>;
   getRecentReadings(userId: string, days: number): Promise<IDailyVerseReading[]>;
+  findStreakInfo(userId: string): Promise<{
+    currentStreak: number;
+    lastReadingDate: Date | null;
+    lastReadingId: string | null;
+  }>;
 }
 
 
-export const DailyVerseReadingRepository = {
-  // Criar um registro de leitura diária
+export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
   create: async (data: IDailyVerseReading): Promise<IDailyVerseReading> => {
     return await DailyVerseReading.create(data);
   },
 
 
-  // Buscar todas as leituras de um usuário
   findByUserId: async (userId: string): Promise<IDailyVerseReading[] | null> => {
-    return await DailyVerseReading.findAll({ where: { userId }, order: [['date', 'DESC']] });
-  },
-
-
-  // Buscar uma leitura específica por usuário e data
-  findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
-    // Converte para o inicio e fim do dia
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0,0,0,0);
-
-    const endOfDate = new Date(date);
-    endOfDate.setHours(23,59,59,999);
-
-    return await DailyVerseReading.findOne({ 
-      where: { 
-        userId,
-        date: {
-          [Op.gte]: startOfDay,
-          [Op.lte]: endOfDate
-        }
-      } 
-    })
-  },
-
-
-  // Buscar o registro de leitura mais recente de um usuário
-  findLatestByUserId: async (userId: string): Promise<IDailyVerseReading | null> => {
-    return await DailyVerseReading.findOne({ 
-      where: { userId },
-      order: [['date', 'DESC']]
+    return await DailyVerseReading.findAll({ 
+      where: { userId }, 
+      order: [['date', 'DESC']],
+      include: [{
+        model: User,
+        as: 'userReading',
+        attributes: ['name', 'photoUrl', 'role']
+      }]
     });
   },
 
 
-  // Obter o streak atual do usuário (diretamente do banco, mas vamos calcular no UseCase)
+  findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
+    // Normaliza a data para o fuso local
+    const localDate = new Date(date);
+    localDate.setHours(0, 0, 0, 0);
+    
+    return await DailyVerseReading.findOne({
+      where: {
+        userId,
+        date: localDate
+      },
+      include: [{
+        model: User,
+        as: 'userReading',
+        attributes: ['name', 'photoUrl', 'role']
+      }]
+    });
+  },
+
+
+  findLatestByUserId: async (userId: string): Promise<IDailyVerseReading | null> => {
+    return await DailyVerseReading.findOne({
+      where: { userId },
+      order: [['date', 'DESC'], ['readAt', 'DESC']],
+      raw: false,
+      include: [{
+        model: User,
+        as: 'userReading',
+        attributes: ['name', 'photoUrl', 'role']
+      }]
+    });
+  },
+
+
   getStreakByUserId: async (userId: string): Promise<number> => {
     const latestReading = await DailyVerseReading.findOne({
       where: { userId },
@@ -70,7 +83,6 @@ export const DailyVerseReadingRepository = {
   },
 
 
-  // Atualizar um registro de leitura
   update: async (id: string, data: Partial<IDailyVerseReading>): Promise<IDailyVerseReading> => {
     const reading = await DailyVerseReading.findByPk(id);
     if (!reading) throw new Error('Registro de leitura não encontrado.');
@@ -78,7 +90,6 @@ export const DailyVerseReadingRepository = {
   },
 
 
-  // Deletar um registro de leitura
   delete: async (id: string): Promise<void> => {
     const reading = await DailyVerseReading.findByPk(id);
     if (!reading) throw new Error('Registro de leitura não encontrado.');
@@ -86,37 +97,216 @@ export const DailyVerseReadingRepository = {
   },
 
 
-  // Obter a quantidade de dias consecutivos de leitura
   getConsecutiveReadingDays: async (userId: string): Promise<number> => {
-    // Esta função é apenas para referência, usaremos a lógica no UseCase
-    // Aqui retornamos o valor do streak salvo no registro mais recente
     const latestReading = await DailyVerseReading.findOne({
       where: { userId },
       order: [['date', 'DESC']]
     });
-    
+   
     return latestReading?.streak || 0;
   },
 
 
-  // Obter as leituras recentes de um usuário (para cálculo do streak)
   getRecentReadings: async (userId: string, days: number): Promise<IDailyVerseReading[]> => {
-    // Obtém a data atual e subtrai "days" dias
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-    const formattedStartDate = startDate.toISOString().split('T')[0];
-    
+    startDate.setHours(0, 0, 0, 0);
+   
     return await DailyVerseReading.findAll({
       where: {
         userId,
         date: {
-          [Op.gte]: formattedStartDate
+          [Op.gte]: startDate
         }
       },
-      order: [['date', 'DESC']]
+      order: [['date', 'DESC']],
+      include: [{
+        model: User,
+        as: 'userReading',
+        attributes: ['name', 'photoUrl', 'role']
+      }]
     });
+  },
+
+
+  findStreakInfo: async (userId: string): Promise<{
+    currentStreak: number;
+    lastReadingDate: Date | null;
+    lastReadingId: string | null;
+  }> => {
+    const latestReading = await DailyVerseReading.findOne({
+      where: { userId },
+      order: [['date', 'DESC'], ['readAt', 'DESC']],
+      attributes: ['id', 'streak', 'date']
+    });
+
+
+    return {
+      currentStreak: latestReading?.streak || 0,
+      lastReadingDate: latestReading?.date || null,
+      lastReadingId: latestReading?.id || null
+    };
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { Op, Sequelize } from 'sequelize';
+// import { IDailyVerseReading, DailyVerseReading } from '../models/dailyVerseReading'
+// import sequelize from '../sequelize';
+
+
+// export interface IDailyVerseReadingRepository {
+//   create(data: IDailyVerseReading): Promise<IDailyVerseReading>;
+//   findByUserId(userId: string): Promise<IDailyVerseReading[] | null>;
+//   findByUserIdAndDate(userId: string, date: Date): Promise<IDailyVerseReading | null>;
+//   findLatestByUserId(userId: string): Promise<IDailyVerseReading | null>;
+//   getStreakByUserId(userId: string): Promise<number>;
+//   update(id: string, data: Partial<IDailyVerseReading>): Promise<IDailyVerseReading>;
+//   delete(id: string): Promise<void>;
+//   getConsecutiveReadingDays(userId: string): Promise<number>;
+//   getRecentReadings(userId: string, days: number): Promise<IDailyVerseReading[]>;
+//   // findStreakInfo(userId: string): Promise<{
+//   //   currentStreak: number;
+//   //   lastReadingDate: Date | null;
+//   // }>;
+// }
+
+
+// export const DailyVerseReadingRepository = {
+//   // Criar um registro de leitura diária
+//   create: async (data: IDailyVerseReading): Promise<IDailyVerseReading> => {
+//     return await DailyVerseReading.create(data);
+//   },
+
+
+//   // Buscar todas as leituras de um usuário
+//   findByUserId: async (userId: string): Promise<IDailyVerseReading[] | null> => {
+//     return await DailyVerseReading.findAll({ where: { userId }, order: [['date', 'DESC']] });
+//   },
+
+
+//   // Buscar uma leitura específica por usuário e data
+//   findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
+//     // Converte para o inicio e fim do dia
+//     const startOfDay = new Date(date);
+//     startOfDay.setHours(0,0,0,0);
+
+//     const endOfDate = new Date(date);
+//     endOfDate.setHours(23,59,59,999);
+
+//     return await DailyVerseReading.findOne({ 
+//       where: { 
+//         userId,
+//         date: {
+//           [Op.between]: [startOfDay, endOfDate]
+//         }
+//       } 
+//     })
+//   },
+
+
+//   // Buscar o registro de leitura mais recente de um usuário
+//   findLatestByUserId: async (userId: string): Promise<IDailyVerseReading | null> => {
+//     return await DailyVerseReading.findOne({ 
+//       where: { userId },
+//       order: [['date', 'DESC']],
+//       //Garante que retorna o objeto completo
+//       raw: false
+//     });
+//   },
+
+
+//   // Obter o streak atual do usuário (diretamente do banco, mas vamos calcular no UseCase)
+//   getStreakByUserId: async (userId: string): Promise<number> => {
+//     const latestReading = await DailyVerseReading.findOne({
+//       where: { userId },
+//       order: [['date', 'DESC']]
+//     });
+
+
+//     return latestReading?.streak || 0;
+//   },
+
+
+//   // Atualizar um registro de leitura
+//   update: async (id: string, data: Partial<IDailyVerseReading>): Promise<IDailyVerseReading> => {
+//     const reading = await DailyVerseReading.findByPk(id);
+//     if (!reading) throw new Error('Registro de leitura não encontrado.');
+//     return await reading.update(data);
+//   },
+
+
+//   // Deletar um registro de leitura
+//   delete: async (id: string): Promise<void> => {
+//     const reading = await DailyVerseReading.findByPk(id);
+//     if (!reading) throw new Error('Registro de leitura não encontrado.');
+//     await reading.destroy();
+//   },
+
+
+//   // Obter a quantidade de dias consecutivos de leitura
+//   getConsecutiveReadingDays: async (userId: string): Promise<number> => {
+//     // Esta função é apenas para referência, usaremos a lógica no UseCase
+//     // Aqui retornamos o valor do streak salvo no registro mais recente
+//     const latestReading = await DailyVerseReading.findOne({
+//       where: { userId },
+//       order: [['date', 'DESC']]
+//     });
+    
+//     return latestReading?.streak || 0;
+//   },
+
+//   // findStreakInfo: async (userId: string): Promise<{
+//   //   currentStreak: number;
+//   //   lastReadingDate: Date | null;
+//   // }> => {
+//   //   // const result = await DailyVerseReading.findOne({
+//   //   //   where: { userId },
+//   //   //   attributes: [
+//   //   //     [sequelize.fn('MAX', sequelize.col('streak')), 'currentStreak'],
+//   //   //     [sequelize.fn('MAX', sequelize.col('date')), 'lastReadingDate']
+//   //   //   ],
+//   //   //   raw: true
+//   //   // });
+
+
+//   //   // return {
+//   //   //   currentStreak: result?.currentStreak || 0,
+//   //   //   lastReadingDate: result?.lastReadingDate || null
+//   //   // };
+//   // }
+
+
+//   // Obter as leituras recentes de um usuário (para cálculo do streak)
+//   getRecentReadings: async (userId: string, days: number): Promise<IDailyVerseReading[]> => {
+//     // Obtém a data atual e subtrai "days" dias
+//     const startDate = new Date();
+//     startDate.setDate(startDate.getDate() - days);
+//     const formattedStartDate = startDate.toISOString().split('T')[0];
+    
+//     return await DailyVerseReading.findAll({
+//       where: {
+//         userId,
+//         date: {
+//           [Op.gte]: formattedStartDate
+//         }
+//       },
+//       order: [['date', 'DESC']]
+//     });
+//   }
+// };
 
 
 

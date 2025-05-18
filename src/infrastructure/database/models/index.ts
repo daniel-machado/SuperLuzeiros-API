@@ -27,6 +27,7 @@ import { QuizQuestion } from "./QuizQuestion";
 import { QuizAnswer } from "./QuizAnswer";
 import { UserClass } from "./ClassUser";
 import { Class } from "./Class";
+import { DailyVerseReading } from "./dailyVerseReading";
 
 // Object.values(models).forEach((model: any) => {
 //   if(model.init){
@@ -144,6 +145,18 @@ UserClass.belongsTo(Class, {foreignKey: 'classId', as: 'classInfo'});
 QuizQuestion.hasMany(QuizAnswer, { foreignKey: "questionId", as: "quizAnswers"});
 QuizAnswer.belongsTo(QuizQuestion, { foreignKey: "questionId", as: "quizquestion" });
 
+
+
+DailyVerseReading.belongsTo(User, {
+  foreignKey: 'userId', // Nome do campo que é a chave estrangeira
+  targetKey: 'id',     // Campo referenciado na tabela User
+  as: 'userReading'          // Alias para o relacionamento (opcional, mas recomendado)
+});
+
+User.hasMany(DailyVerseReading, {
+  foreignKey: 'userId',
+  as: 'readings' // Nome do relacionamento para acessar as leituras do usuário
+});
 
 
 

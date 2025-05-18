@@ -48,14 +48,30 @@ DailyVerseReading.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
+      references: { 
+        model: 'users', 
+        key: 'id' },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
     },
     date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY, // Armazena apenas a data (sem hora)
       allowNull: false,
+      get() {
+        // Garante que retorna como Date no fuso local
+        const rawValue = this.getDataValue('date');
+        return rawValue ? new Date(rawValue + 'T00:00:00') : null;
+      }
     },
     readAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
+      get() {
+        // Formata para o fuso horário local
+        const rawValue = this.getDataValue('readAt');
+        return rawValue ? new Date(rawValue) : null;
+      }
     },
     book: {
         type: DataTypes.STRING,
@@ -107,3 +123,9 @@ DailyVerseReading.init(
   timestamps: true
   }
 );
+
+
+
+
+
+
