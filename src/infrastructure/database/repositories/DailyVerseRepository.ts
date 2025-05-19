@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import { IDailyVerseReading, DailyVerseReading } from '../models/dailyVerseReading';
 import { User } from '../models';
+import { format } from 'date-fns';
 
 export interface IDailyVerseReadingRepository {
   create(data: IDailyVerseReading): Promise<IDailyVerseReading>;
@@ -39,15 +40,31 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
   },
 
 
+  // findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
+  //   // Normaliza a data para o fuso local
+  //   const localDate = new Date(date);
+  //   localDate.setHours(0, 0, 0, 0);
+    
+  //   return await DailyVerseReading.findOne({
+  //     where: {
+  //       userId,
+  //       date: localDate
+  //     },
+  //     include: [{
+  //       model: User,
+  //       as: 'userReading',
+  //       attributes: ['name', 'photoUrl', 'role']
+  //     }]
+  //   });
+  // },
   findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
-    // Normaliza a data para o fuso local
-    const localDate = new Date(date);
-    localDate.setHours(0, 0, 0, 0);
+    // Formata a data para YYYY-MM-DD para comparar com DATEONLY
+    const dateStr = format(date, 'yyyy-MM-dd');
     
     return await DailyVerseReading.findOne({
       where: {
         userId,
-        date: localDate
+        date: dateStr
       },
       include: [{
         model: User,
@@ -56,7 +73,6 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
       }]
     });
   },
-
 
   findLatestByUserId: async (userId: string): Promise<IDailyVerseReading | null> => {
     return await DailyVerseReading.findOne({

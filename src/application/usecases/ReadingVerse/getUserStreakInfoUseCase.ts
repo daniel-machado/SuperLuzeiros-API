@@ -1,11 +1,20 @@
 import { IDailyVerseReadingRepository } from "../../../infrastructure/database/repositories/DailyVerseRepository";
 
+import {
+  startOfToday,
+  parseISO,
+  startOfDay,
+  differenceInDays,
+  differenceInCalendarDays,
+  isToday,
+  isYesterday,
+  format
+} from 'date-fns';
 
 export const getUserStreakInfoUseCase = async (
   userId: string,
   repository: IDailyVerseReadingRepository
 ) => {
-  // 1. Obter a última leitura
   const latestReading = await repository.findLatestByUserId(userId);
 
 
@@ -21,33 +30,31 @@ export const getUserStreakInfoUseCase = async (
   }
 
 
-  // 2. Normalização de datas (fuso local)
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-  const latestDate = new Date(latestReading.date);
-  latestDate.setHours(0, 0, 0, 0);
+  const today = startOfToday();
+  const lastReadingDate = startOfDay(latestReading.date);
+  const daysDiff = differenceInDays(today, lastReadingDate);
 
 
-  // 3. Cálculo da diferença de dias
-  const daysDiff = Math.floor((today.getTime() - latestDate.getTime()) / (1000 * 60 * 60 * 24));
-
-
-  // 4. Determinar status
   const hasReadToday = daysDiff === 0;
-  let currentStreak = latestReading.streak;
-  let lives = latestReading.life;
+  const hasReadYesterday = daysDiff === 1;
+
+
+  let currentStreak = latestReading.streak || 0;
+  let lives = latestReading.life || 0;
   let streakActive = hasReadToday;
 
 
   if (!hasReadToday) {
-    if (daysDiff === 1) {
-      streakActive = true;
+    if (hasReadYesterday) {
+      // Leitura foi feita ontem (ainda pode manter o streak se ler hoje)
+      streakActive = false;
     } else if (daysDiff > 1 && lives > 0) {
+      // Tentar recuperar streak com vidas
       const daysCanRecover = daysDiff - 1;
       if (daysCanRecover <= lives) {
         lives -= daysCanRecover;
         streakActive = true;
+        currentStreak += 1;
       } else {
         currentStreak = 0;
         streakActive = false;
@@ -60,14 +67,364 @@ export const getUserStreakInfoUseCase = async (
 
 
   return {
-    currentStreak: streakActive ? currentStreak : 0,
+    //currentStreak: streakActive ? currentStreak : 0,
+    currentStreak: currentStreak,
     lives,
-    lastReadingDate: latestReading.date,
+    lastReadingDate: latestReading.readAt,
     hasReadToday,
     streakActive,
-    daysSinceLastReading: daysDiff
+    daysSinceLastReading: daysDiff,
+
+    //Infirmações adicionais para UI
+    formattedLastDate: format(lastReadingDate, 'PPpp'), // Formato bonito para exibição
+    isOnfire: streakActive && currentStreak >= 3,
+    nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null
   };
 };
+
+
+
+
+
+
+
+
+// export const getUserStreakInfoUseCase = async (
+//   userId: string,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   // 1. Obter a última leitura
+//   const latestReading = await repository.findLatestByUserId(userId);
+
+
+//   if (!latestReading) {
+//     return {
+//       currentStreak: 0,
+//       lives: 0,
+//       lastReadingDate: null,
+//       hasReadToday: false,
+//       streakActive: false,
+//       daysSinceLastReading: null,
+//       formattedLastDate: null
+//     };
+//   }
+
+
+//   // 2. Processar datas
+//   const today = startOfToday();
+//   const lastDate = parseISO(latestReading.date); // Converte DATEONLY para Date
+//   const lastReadAt = new Date(latestReading.readAt);
+
+
+//   // 3. Calcular diferenças
+//   const daysDiff = differenceInCalendarDays(today, lastDate);
+//   const hasReadToday = isToday(lastReadAt);
+//   const readYesterday = isYesterday(lastReadAt);
+
+
+//   // 4. Determinar status do streak
+//   let currentStreak = latestReading.streak || 0;
+//   let lives = latestReading.life || 0;
+//   let streakActive = hasReadToday;
+
+
+//   if (!hasReadToday) {
+//     if (readYesterday) {
+//       // Leitura foi feita ontem - streak continua
+//       streakActive = true;
+//     } else if (daysDiff > 1 && lives > 0) {
+//       // Tentar recuperar streak com vidas
+//       const daysCanRecover = daysDiff - 1;
+//       if (lives >= daysCanRecover) {
+//         lives -= daysCanRecover;
+//         streakActive = true;
+//       } else {
+//         currentStreak = 0;
+//         streakActive = false;
+//       }
+//     } else {
+//       currentStreak = 0;
+//       streakActive = false;
+//     }
+//   }
+
+
+//   // 5. Formatar resposta
+//   return {
+//     currentStreak: streakActive ? currentStreak : 0,
+//     lives,
+//     lastReadingDate: latestReading.readAt,
+//     hasReadToday,
+//     streakActive,
+//     daysSinceLastReading: daysDiff,
+//     formattedLastDate: format(lastReadAt, 'PPpp'), // Formato bonito para exibição
+//     // Informações adicionais para UI
+//     isOnFire: streakActive && currentStreak >= 3,
+//     nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null
+//   };
+// };
+
+
+
+
+
+
+
+
+
+// export const getUserStreakInfoUseCase = async (
+//   userId: string,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   // 1. Obter a última leitura
+//   const latestReading = await repository.findLatestByUserId(userId);
+
+
+//   if (!latestReading) {
+//     return {
+//       currentStreak: 0,
+//       lives: 0,
+//       lastReadingDate: null,
+//       hasReadToday: false,
+//       streakActive: false,
+//       daysSinceLastReading: null
+//     };
+//   }
+
+
+//   // 2. Data atual LOCAL (meia-noite)
+//   const todayLocal = new Date()
+//   todayLocal.setHours(0,0,0,0);
+
+//   // Data da última leitura (convertida para local)
+//   const lastReadingDate = new Date(latestReading.date);
+//   lastReadingDate.setHours(0,0,0,0)
+
+//   // 4. Cálculo da diferença de dias LOCAIS
+//   const daysDiff = Math.floor(
+//     ( todayLocal.getTime() - lastReadingDate.getTime() ) /
+//     (1000 * 60 * 60 * 24)
+//   );
+
+//   // 5. Determinar status (Verificar se a leitura foi feita hoje (LOCAL))
+//   const hasReadToday = daysDiff === 0;
+
+
+
+//   let currentStreak = latestReading.streak || 0;
+//   let lives = latestReading.life || 0;
+//   let streakActive = hasReadToday;
+
+
+//   // 6. Lógica de streak e vidas
+//   if (!hasReadToday) {
+//     if (daysDiff === 1) {
+//       // Leitura foi feita ontem (dias consecutivos)
+//       streakActive = true;
+//       currentStreak += 1;
+//     } else if (daysDiff > 1 && lives > 0) {
+//       // Tentar recuperar streak com vidas
+//       const daysCanRecover = daysDiff - 1;
+//       if (daysCanRecover <= lives) {
+//         lives -= daysCanRecover;
+//         streakActive = true;
+//         currentStreak += 1;
+//       } else {
+//         currentStreak = 0;
+//         streakActive = false;
+//       }
+//     } else {
+//       currentStreak = 0;
+//       streakActive = false;
+//     }
+//   }
+
+// console.log({currentStreak: streakActive ? currentStreak : 0,
+//     lives,
+//     lastReadingDate: latestReading.readAt, // Mostra o timestamp completo
+//     hasReadToday,
+//     streakActive,
+//     daysSinceLastReading: daysDiff})
+//   return {
+//     currentStreak: streakActive ? currentStreak : 0,
+//     lives,
+//     lastReadingDate: latestReading.readAt, // Mostra o timestamp completo
+//     hasReadToday,
+//     streakActive,
+//     daysSinceLastReading: daysDiff
+//   };
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const getUserStreakInfoUseCase = async (
+//   userId: string,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   // 1. Obter a última leitura
+//   const latestReading = await repository.findLatestByUserId(userId);
+
+
+//   if (!latestReading) {
+//     return {
+//       currentStreak: 0,
+//       lives: 0,
+//       lastReadingDate: null,
+//       hasReadToday: false,
+//       streakActive: false,
+//       daysSinceLastReading: null
+//     };
+//   }
+
+
+//   // 2. Obter datas como strings YYYY-MM-DD (DATEONLY)
+//   const today = new Date().toISOString().split('T')[0]; // Data atual no formato DATEONLY
+//   const lastReadingDate = latestReading.date; // Já vem no formato DATEONLY do banco
+
+
+//   // 3. Converter para Date objects (meia-noite UTC)
+//   const todayDate = new Date(today);
+//   const lastDate = new Date(lastReadingDate);
+
+
+//   // 4. Cálculo da diferença de dias
+//   const timeDiff = todayDate.getTime() - lastDate.getTime();
+//   const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+
+//   // 5. Determinar status
+//   const hasReadToday = daysDiff === 0;
+//   let currentStreak = latestReading.streak || 0;
+//   let lives = latestReading.life || 0;
+//   let streakActive = hasReadToday;
+
+
+//   // 6. Lógica de streak e vidas
+//   if (!hasReadToday) {
+//     if (daysDiff === 1) {
+//       // Leitura foi feita ontem (dias consecutivos)
+//       streakActive = true;
+//       currentStreak += 1;
+//     } else if (daysDiff > 1 && lives > 0) {
+//       // Tentar recuperar streak com vidas
+//       const daysCanRecover = daysDiff - 1;
+//       if (daysCanRecover <= lives) {
+//         lives -= daysCanRecover;
+//         streakActive = true;
+//         currentStreak += 1;
+//       } else {
+//         currentStreak = 0;
+//         streakActive = false;
+//       }
+//     } else {
+//       currentStreak = 0;
+//       streakActive = false;
+//     }
+//   }
+
+
+//   return {
+//     currentStreak,
+//     lives,
+//     lastReadingDate: latestReading.readAt, // Mostra o timestamp completo
+//     hasReadToday,
+//     streakActive,
+//     daysSinceLastReading: daysDiff
+//   };
+// };
+
+
+
+// export const getUserStreakInfoUseCase = async (
+//   userId: string,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   // 1. Obter a última leitura
+//   const latestReading = await repository.findLatestByUserId(userId);
+
+
+//   if (!latestReading) {
+//     return {
+//       currentStreak: 0,
+//       lives: 0,
+//       lastReadingDate: null,
+//       hasReadToday: false,
+//       streakActive: false,
+//       daysSinceLastReading: null
+//     };
+//   }
+
+
+//   // 2. Normalização de datas (fuso local)
+//   const now = new Date();
+//   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+//   const latestDate = new Date(latestReading.date);
+//   latestDate.setHours(0, 0, 0, 0);
+
+//   console.log("now", now)
+//     console.log("today", today)
+//       console.log("latesDate", latestDate)
+//   // 3. Cálculo da diferença de dias
+//   const daysDiff = Math.floor((today.getTime() - latestDate.getTime()) / (1000 * 60 * 60 * 24));
+
+//   console.log("dayDiff", daysDiff)
+//   // 4. Determinar status
+//   const hasReadToday = daysDiff === 0;
+//   let currentStreak = latestReading.streak;
+//   let lives = latestReading.life;
+//   let streakActive = hasReadToday;
+
+
+//   if (!hasReadToday) {
+//     if (daysDiff === 1) {
+//       streakActive = true;
+//     } else if (daysDiff > 1 && lives > 0) {
+//       const daysCanRecover = daysDiff - 1;
+//       if (daysCanRecover <= lives) {
+//         lives -= daysCanRecover;
+//         streakActive = true;
+//       } else {
+//         currentStreak = 0;
+//         streakActive = false;
+//       }
+//     } else {
+//       currentStreak = 0;
+//       streakActive = false;
+//     }
+//   }
+
+
+//   return {
+//     currentStreak: streakActive ? currentStreak : 0,
+//     lives,
+//     lastReadingDate: latestReading.date,
+//     hasReadToday,
+//     streakActive,
+//     daysSinceLastReading: daysDiff
+//   };
+// };
 
 
 

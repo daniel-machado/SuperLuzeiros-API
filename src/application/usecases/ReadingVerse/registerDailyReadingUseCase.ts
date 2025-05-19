@@ -7,10 +7,23 @@ import Decimal from 'decimal.js';
 import { IndividualRankingRepository } from '../../../infrastructure/database/repositories/InidividualRankingRepository';
 import { UserRepository } from '../../../infrastructure/database/repositories/UserRepository';
 
+
+import { 
+  startOfToday, 
+  startOfDay, 
+  isToday, 
+  isYesterday, 
+  differenceInDays,
+  parseISO,
+  format
+} from 'date-fns';
+
+
 export const registerDailyReadingUseCase = async (
   data: IDailyVerseReading,
   repository: IDailyVerseReadingRepository
 ) => {
+
   // 1. Validação do usuário
   const user = await UserRepository.findUserById(data.userId);
   if (!user) {
@@ -18,9 +31,9 @@ export const registerDailyReadingUseCase = async (
   }
 
 
-  // 2. Normalização de data (fuso local)
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // 2. Data atual (meia-noite do dia local)
+  const today = startOfToday();
+  
   
   // 3. Verificação de leitura duplicada
   const existingReading = await repository.findByUserIdAndDate(data.userId, today);
@@ -41,14 +54,14 @@ export const registerDailyReadingUseCase = async (
   // 5. Cálculo do streak
   let streak = 1;
   let life = latestReading?.life || 0;
+
+
   const milestones = [1, 5, 10, 30, 50, 70, 100];
 
 
   if (latestReading) {
-    const lastDate = new Date(latestReading.date);
-    lastDate.setHours(0, 0, 0, 0);
-    
-    const daysDiff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    const lastReadingDate = startOfDay(latestReading.date);
+    const daysDiff = differenceInDays(today, lastReadingDate);
 
 
     if (daysDiff === 1) {
@@ -69,7 +82,7 @@ export const registerDailyReadingUseCase = async (
   }
 
 
-  // 7. Atribuição de pontos para DBVs
+  // 7. Atribuição de pontos para DBVs (mantido igual)
   if (user.role === 'dbv') {
     const dbvEvaluation = await IndividualEvaluationRepository.findActiveEvaluationByUser(data.userId);
     if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador");
@@ -88,12 +101,11 @@ export const registerDailyReadingUseCase = async (
     }
   }
 
-
   // 8. Criação do registro
   const newReading = await repository.create({
     ...data,
     date: today,
-    readAt: now,
+    readAt: new Date(),
     streak,
     life
   });
@@ -105,10 +117,242 @@ export const registerDailyReadingUseCase = async (
       currentStreak: streak,
       lives: life,
       lastReadingDate: today,
+      hasReadToday: true, // Sempre true pois acabou de registrar
+      streakActive: true, // Sempre true após registro
       milestoneReached: milestones.includes(streak) ? streak : null
     }
   };
 };
+
+
+// import {
+//   startOfToday,
+//   format,
+//   parseISO,
+//   differenceInCalendarDays,
+// } from 'date-fns';
+
+// export const registerDailyReadingUseCase = async (
+//   data: IDailyVerseReading,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   // 1. Validação do usuário
+//   const user = await UserRepository.findUserById(data.userId);
+//   if (!user) {
+//     throw new Error('Usuário não encontrado');
+//   }
+
+
+//   // 2. Obter data atual (local)
+//   const now = new Date();
+//   const today = startOfToday(); // Meia-noite de hoje (local)
+
+
+//   // 3. Verificação de leitura duplicada
+//   const existingReading = await repository.findByUserIdAndDate(data.userId, today);
+//   if (existingReading) {
+//     const streakInfo = await repository.findStreakInfo(data.userId);
+//     throw {
+//       name: 'ReadingExistsError',
+//       message: 'Já existe um registro de leitura para esta data.',
+//       streakInfo,
+//       existingReadingId: existingReading.id
+//     };
+//   }
+
+
+//   // 4. Obter última leitura
+//   const latestReading = await repository.findLatestByUserId(data.userId);
+
+
+//   // 5. Cálculo do streak
+//   let streak = 1;
+//   let life = latestReading?.life || 0;
+//   const milestones = [1, 5, 10, 30, 50, 70, 100];
+
+
+//   if (latestReading) {
+//     const lastDate = parseISO(latestReading.date); // Converte DATEONLY para Date
+    
+//     // Diferença em dias (calendário, ignora horas)
+//     const daysDiff = differenceInCalendarDays(today, lastDate);
+
+
+//     if (daysDiff === 1) {
+//       // Leitura consecutiva
+//       streak = (latestReading.streak || 0) + 1;
+//     } else if (daysDiff > 1 && life > 0) {
+//       // Tentar recuperar streak com vidas
+//       const daysCanRecover = daysDiff - 1;
+//       if (daysCanRecover <= life) {
+//         life -= daysCanRecover;
+//         streak = (latestReading.streak || 0) + 1;
+//       }
+//     }
+//   }
+
+
+//   // 6. Verificação de milestones
+//   const milestoneReached = milestones.includes(streak) ? streak : null;
+//   if (milestoneReached) {
+//     life += 1;
+//   }
+
+
+//   // 7. Atribuição de pontos para DBVs
+//   if (user.role === 'dbv') {
+//     const dbvEvaluation = await IndividualEvaluationRepository.findActiveEvaluationByUser(data.userId);
+//     if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador");
+
+
+//     const updatedIndividualTotal = new Decimal(dbvEvaluation.totalScore || 0).plus(data.pointsEarned);
+//     await IndividualEvaluationRepository.updateEvaluation(dbvEvaluation.id, {
+//       totalScore: updatedIndividualTotal.toNumber(),
+//     });
+
+
+//     const existingRankingIndividual = await IndividualRankingRepository.findByUserAndWeek(data.userId, dbvEvaluation.week);
+//     if (existingRankingIndividual) {
+//       existingRankingIndividual.totalScore = updatedIndividualTotal.toNumber();
+//       await IndividualRankingRepository.updateRanking(existingRankingIndividual);
+//     }
+//   }
+
+
+//   // 8. Criação do registro
+//   const newReading = await repository.create({
+//     ...data,
+//     date: format(today, 'yyyy-MM-dd'), // Armazena como DATEONLY
+//     readAt: now,
+//     streak,
+//     life
+//   });
+
+
+//   return {
+//     reading: newReading,
+//     streakInfo: {
+//       currentStreak: streak,
+//       lives: life,
+//       lastReadingDate: today,
+//       milestoneReached,
+//       nextMilestone: milestones.find(m => m > streak) || null
+//     }
+//   };
+// };
+
+
+
+
+
+
+
+
+
+
+
+// export const registerDailyReadingUseCase = async (
+//   data: IDailyVerseReading,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   // 1. Validação do usuário
+//   const user = await UserRepository.findUserById(data.userId);
+//   if (!user) {
+//     throw new Error('Usuário não encontrado');
+//   }
+
+
+//   // 2. Normalização de data (fuso local)
+//   const now = new Date();
+//   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+//   // 3. Verificação de leitura duplicada
+//   const existingReading = await repository.findByUserIdAndDate(data.userId, today);
+//   if (existingReading) {
+//     const streakInfo = await repository.findStreakInfo(data.userId);
+//     throw {
+//       name: 'ReadingExistsError',
+//       message: 'Já existe um registro de leitura para esta data.',
+//       streakInfo,
+//       existingReadingId: existingReading.id
+//     };
+//   }
+
+
+//   // 4. Obter última leitura
+//   const latestReading = await repository.findLatestByUserId(data.userId);
+  
+//   // 5. Cálculo do streak
+//   let streak = 1;
+//   let life = latestReading?.life || 0;
+//   const milestones = [1, 5, 10, 30, 50, 70, 100];
+
+
+//   if (latestReading) {
+//     const lastDate = new Date(latestReading.date);
+//     lastDate.setHours(0, 0, 0, 0);
+    
+//     const daysDiff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+
+//     if (daysDiff === 1) {
+//       streak = latestReading.streak + 1;
+//     } else if (daysDiff > 1 && life > 0) {
+//       const neededLives = daysDiff - 1;
+//       if (neededLives <= life) {
+//         streak = latestReading.streak + 1;
+//         life -= neededLives;
+//       }
+//     }
+//   }
+
+
+//   // 6. Verificação de milestones
+//   if (milestones.includes(streak)) {
+//     life += 1;
+//   }
+
+
+//   // 7. Atribuição de pontos para DBVs
+//   if (user.role === 'dbv') {
+//     const dbvEvaluation = await IndividualEvaluationRepository.findActiveEvaluationByUser(data.userId);
+//     if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador");
+
+
+//     const updatedIndividualTotal = new Decimal(dbvEvaluation.totalScore || 0).plus(data.pointsEarned);
+//     await IndividualEvaluationRepository.updateEvaluation(dbvEvaluation.id, {
+//       totalScore: updatedIndividualTotal.toNumber(),
+//     });
+
+
+//     const existingRankingIndividual = await IndividualRankingRepository.findByUserAndWeek(data.userId, dbvEvaluation.week);
+//     if (existingRankingIndividual) {
+//       existingRankingIndividual.totalScore = updatedIndividualTotal.toNumber();
+//       await IndividualRankingRepository.updateRanking(existingRankingIndividual);
+//     }
+//   }
+
+
+//   // 8. Criação do registro
+//   const newReading = await repository.create({
+//     ...data,
+//     date: today,
+//     readAt: now,
+//     streak,
+//     life
+//   });
+
+
+//   return {
+//     reading: newReading,
+//     streakInfo: {
+//       currentStreak: streak,
+//       lives: life,
+//       lastReadingDate: today,
+//       milestoneReached: milestones.includes(streak) ? streak : null
+//     }
+//   };
+// };
 
 
 

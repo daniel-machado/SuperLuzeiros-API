@@ -59,9 +59,13 @@ DailyVerseReading.init(
       allowNull: false,
       get() {
         // Garante que retorna como Date no fuso local
-        const rawValue = this.getDataValue('date');
-        return rawValue ? new Date(rawValue + 'T00:00:00') : null;
-      }
+        const value = this.getDataValue('date');
+        return value ? new Date(value + 'T00:00:00') : null;
+      },
+      // set(value: Date){
+      //   const localDate = format(value, 'yyyy-MM-dd') //Armazena como string local
+      //   this.setDataValue('date', localDate)
+      // }
     },
     readAt: {
       type: DataTypes.DATE,
