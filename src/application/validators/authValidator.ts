@@ -81,6 +81,6 @@ export const acceptFPCodeSchema: ObjectSchema = Joi.object({
   providedCode: Joi.number().required(),
   newPassword: Joi.string()
     .required()
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,}$')),
+    //.pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,}$')),
 });
 
