@@ -39,7 +39,7 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
 
   findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    
+    console.log(dateStr)
     return await DailyVerseReading.findOne({
       where: {
         userId,

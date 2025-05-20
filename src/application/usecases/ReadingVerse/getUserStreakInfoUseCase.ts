@@ -36,7 +36,9 @@ export const getUserStreakInfoUseCase = async (
 
   // Ajuste para o fuso horário local
   const today = startOfDay(toZonedTime(new Date(), timeZone));
-  const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
+  const lastReadingDate = startOfDay(
+    toZonedTime(new Date(latestReading.createdAt ?? Date.now()), timeZone)
+  );
   const daysDiff = differenceInDays(today, lastReadingDate);
 
   const hasReadToday = daysDiff === 0;
@@ -74,7 +76,9 @@ export const getUserStreakInfoUseCase = async (
     daysSinceLastReading: daysDiff,
     formattedLastDate: format(lastReadingDate, 'PPpp'),
     isOnfire: streakActive && currentStreak >= 3,
-    nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null
+    nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null,
+    dateServer: new Date().toISOString(),
+      dateServer2: toZonedTime(new Date(), 'America/Sao_Paulo')
   };
 };
 

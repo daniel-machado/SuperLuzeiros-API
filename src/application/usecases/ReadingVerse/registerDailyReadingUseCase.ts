@@ -40,9 +40,12 @@ export const registerDailyReadingUseCase = async (
   // Ajuste para o fuso horário local (mas salva em UTC)
   const zonedNow = toZonedTime(new Date(), timeZone);
   const startOfTodayInZone = startOfDay(zonedNow);
-  const todayUTC = new Date(startOfTodayInZone.getTime() - startOfTodayInZone.getTimezoneOffset() * 60000);
+  //const todayUTC = new Date(startOfTodayInZone.getTime() - startOfTodayInZone.getTimezoneOffset() * 60000);
+  const todayUTC = toZonedTime(startOfTodayInZone, timeZone)
 
   const existingReading = await repository.findByUserIdAndDate(data.userId, todayUTC);
+  console.log(existingReading)
+  console.log(todayUTC)
   if (existingReading) {
     const streakInfo = await repository.findStreakInfo(data.userId);
     throw {
@@ -101,6 +104,9 @@ export const registerDailyReadingUseCase = async (
     streak,
     life
   });
+  console.log('Server time (UTC):', new Date().toISOString());
+console.log('Server time (São Paulo):', toZonedTime(new Date(), 'America/Sao_Paulo'));
+
 
   return {
     reading: newReading,
@@ -110,7 +116,9 @@ export const registerDailyReadingUseCase = async (
       lastReadingDate: todayUTC,
       hasReadToday: true,
       streakActive: true,
-      milestoneReached: milestones.includes(streak) ? streak : null
+      milestoneReached: milestones.includes(streak) ? streak : null,
+      dateServer: new Date().toISOString(),
+      dateServer2: toZonedTime(new Date(), 'America/Sao_Paulo')
     }
   };
 };
