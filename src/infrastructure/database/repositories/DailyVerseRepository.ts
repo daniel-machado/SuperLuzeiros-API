@@ -20,12 +20,10 @@ export interface IDailyVerseReadingRepository {
   }>;
 }
 
-
 export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
   create: async (data: IDailyVerseReading): Promise<IDailyVerseReading> => {
     return await DailyVerseReading.create(data);
   },
-
 
   findByUserId: async (userId: string): Promise<IDailyVerseReading[] | null> => {
     return await DailyVerseReading.findAll({ 
@@ -39,26 +37,7 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
     });
   },
 
-
-  // findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
-  //   // Normaliza a data para o fuso local
-  //   const localDate = new Date(date);
-  //   localDate.setHours(0, 0, 0, 0);
-    
-  //   return await DailyVerseReading.findOne({
-  //     where: {
-  //       userId,
-  //       date: localDate
-  //     },
-  //     include: [{
-  //       model: User,
-  //       as: 'userReading',
-  //       attributes: ['name', 'photoUrl', 'role']
-  //     }]
-  //   });
-  // },
   findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
-    // Formata a data para YYYY-MM-DD para comparar com DATEONLY
     const dateStr = format(date, 'yyyy-MM-dd');
     
     return await DailyVerseReading.findOne({
@@ -78,7 +57,6 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
     return await DailyVerseReading.findOne({
       where: { userId },
       order: [['date', 'DESC'], ['readAt', 'DESC']],
-      raw: false,
       include: [{
         model: User,
         as: 'userReading',
@@ -87,17 +65,14 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
     });
   },
 
-
   getStreakByUserId: async (userId: string): Promise<number> => {
     const latestReading = await DailyVerseReading.findOne({
       where: { userId },
       order: [['date', 'DESC']]
     });
 
-
     return latestReading?.streak || 0;
   },
-
 
   update: async (id: string, data: Partial<IDailyVerseReading>): Promise<IDailyVerseReading> => {
     const reading = await DailyVerseReading.findByPk(id);
@@ -105,34 +80,31 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
     return await reading.update(data);
   },
 
-
   delete: async (id: string): Promise<void> => {
     const reading = await DailyVerseReading.findByPk(id);
     if (!reading) throw new Error('Registro de leitura não encontrado.');
     await reading.destroy();
   },
 
-
   getConsecutiveReadingDays: async (userId: string): Promise<number> => {
     const latestReading = await DailyVerseReading.findOne({
       where: { userId },
       order: [['date', 'DESC']]
     });
-   
+
     return latestReading?.streak || 0;
   },
-
 
   getRecentReadings: async (userId: string, days: number): Promise<IDailyVerseReading[]> => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-    startDate.setHours(0, 0, 0, 0);
-   
+    const startDateStr = format(startDate, 'yyyy-MM-dd');
+
     return await DailyVerseReading.findAll({
       where: {
         userId,
         date: {
-          [Op.gte]: startDate
+          [Op.gte]: startDateStr
         }
       },
       order: [['date', 'DESC']],
@@ -143,7 +115,6 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
       }]
     });
   },
-
 
   findStreakInfo: async (userId: string): Promise<{
     currentStreak: number;
@@ -156,7 +127,6 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
       attributes: ['id', 'streak', 'date']
     });
 
-
     return {
       currentStreak: latestReading?.streak || 0,
       lastReadingDate: latestReading?.date || null,
@@ -164,6 +134,181 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
     };
   }
 };
+
+
+
+
+
+
+
+
+
+// import { Op } from 'sequelize';
+// import { IDailyVerseReading, DailyVerseReading } from '../models/dailyVerseReading';
+// import { User } from '../models';
+// import { format } from 'date-fns';
+
+// export interface IDailyVerseReadingRepository {
+//   create(data: IDailyVerseReading): Promise<IDailyVerseReading>;
+//   findByUserId(userId: string): Promise<IDailyVerseReading[] | null>;
+//   findByUserIdAndDate(userId: string, date: Date): Promise<IDailyVerseReading | null>;
+//   findLatestByUserId(userId: string): Promise<IDailyVerseReading | null>;
+//   getStreakByUserId(userId: string): Promise<number>;
+//   update(id: string, data: Partial<IDailyVerseReading>): Promise<IDailyVerseReading>;
+//   delete(id: string): Promise<void>;
+//   getConsecutiveReadingDays(userId: string): Promise<number>;
+//   getRecentReadings(userId: string, days: number): Promise<IDailyVerseReading[]>;
+//   findStreakInfo(userId: string): Promise<{
+//     currentStreak: number;
+//     lastReadingDate: Date | null;
+//     lastReadingId: string | null;
+//   }>;
+// }
+
+
+// export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
+//   create: async (data: IDailyVerseReading): Promise<IDailyVerseReading> => {
+//     return await DailyVerseReading.create(data);
+//   },
+
+
+//   findByUserId: async (userId: string): Promise<IDailyVerseReading[] | null> => {
+//     return await DailyVerseReading.findAll({ 
+//       where: { userId }, 
+//       order: [['date', 'DESC']],
+//       include: [{
+//         model: User,
+//         as: 'userReading',
+//         attributes: ['name', 'photoUrl', 'role']
+//       }]
+//     });
+//   },
+
+
+//   // findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
+//   //   // Normaliza a data para o fuso local
+//   //   const localDate = new Date(date);
+//   //   localDate.setHours(0, 0, 0, 0);
+    
+//   //   return await DailyVerseReading.findOne({
+//   //     where: {
+//   //       userId,
+//   //       date: localDate
+//   //     },
+//   //     include: [{
+//   //       model: User,
+//   //       as: 'userReading',
+//   //       attributes: ['name', 'photoUrl', 'role']
+//   //     }]
+//   //   });
+//   // },
+//   findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
+//     // Formata a data para YYYY-MM-DD para comparar com DATEONLY
+//     const dateStr = format(date, 'yyyy-MM-dd');
+    
+//     return await DailyVerseReading.findOne({
+//       where: {
+//         userId,
+//         date: dateStr
+//       },
+//       include: [{
+//         model: User,
+//         as: 'userReading',
+//         attributes: ['name', 'photoUrl', 'role']
+//       }]
+//     });
+//   },
+
+//   findLatestByUserId: async (userId: string): Promise<IDailyVerseReading | null> => {
+//     return await DailyVerseReading.findOne({
+//       where: { userId },
+//       order: [['date', 'DESC'], ['readAt', 'DESC']],
+//       raw: false,
+//       include: [{
+//         model: User,
+//         as: 'userReading',
+//         attributes: ['name', 'photoUrl', 'role']
+//       }]
+//     });
+//   },
+
+
+//   getStreakByUserId: async (userId: string): Promise<number> => {
+//     const latestReading = await DailyVerseReading.findOne({
+//       where: { userId },
+//       order: [['date', 'DESC']]
+//     });
+
+
+//     return latestReading?.streak || 0;
+//   },
+
+
+//   update: async (id: string, data: Partial<IDailyVerseReading>): Promise<IDailyVerseReading> => {
+//     const reading = await DailyVerseReading.findByPk(id);
+//     if (!reading) throw new Error('Registro de leitura não encontrado.');
+//     return await reading.update(data);
+//   },
+
+
+//   delete: async (id: string): Promise<void> => {
+//     const reading = await DailyVerseReading.findByPk(id);
+//     if (!reading) throw new Error('Registro de leitura não encontrado.');
+//     await reading.destroy();
+//   },
+
+
+//   getConsecutiveReadingDays: async (userId: string): Promise<number> => {
+//     const latestReading = await DailyVerseReading.findOne({
+//       where: { userId },
+//       order: [['date', 'DESC']]
+//     });
+   
+//     return latestReading?.streak || 0;
+//   },
+
+
+//   getRecentReadings: async (userId: string, days: number): Promise<IDailyVerseReading[]> => {
+//     const startDate = new Date();
+//     startDate.setDate(startDate.getDate() - days);
+//     startDate.setHours(0, 0, 0, 0);
+   
+//     return await DailyVerseReading.findAll({
+//       where: {
+//         userId,
+//         date: {
+//           [Op.gte]: startDate
+//         }
+//       },
+//       order: [['date', 'DESC']],
+//       include: [{
+//         model: User,
+//         as: 'userReading',
+//         attributes: ['name', 'photoUrl', 'role']
+//       }]
+//     });
+//   },
+
+
+//   findStreakInfo: async (userId: string): Promise<{
+//     currentStreak: number;
+//     lastReadingDate: Date | null;
+//     lastReadingId: string | null;
+//   }> => {
+//     const latestReading = await DailyVerseReading.findOne({
+//       where: { userId },
+//       order: [['date', 'DESC'], ['readAt', 'DESC']],
+//       attributes: ['id', 'streak', 'date']
+//     });
+
+
+//     return {
+//       currentStreak: latestReading?.streak || 0,
+//       lastReadingDate: latestReading?.date || null,
+//       lastReadingId: latestReading?.id || null
+//     };
+//   }
+// };
 
 
 

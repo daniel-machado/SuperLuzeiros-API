@@ -18,6 +18,11 @@ import { UserRepository } from '../../../infrastructure/database/repositories/Us
 //   format
 // } from 'date-fns';
 
+// import { startOfDay, differenceInDays } from 'date-fns';
+// import { toZonedTime } from 'date-fns-tz';
+
+// const timeZone = 'America/Sao_Paulo';
+
 import { startOfDay, differenceInDays } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 
@@ -32,10 +37,12 @@ export const registerDailyReadingUseCase = async (
     throw new Error('Usuário não encontrado');
   }
 
-  // Ajuste para o fuso horário local
-  const today = startOfDay(toZonedTime(new Date(), timeZone));
+  // Ajuste para o fuso horário local (mas salva em UTC)
+  const zonedNow = toZonedTime(new Date(), timeZone);
+  const startOfTodayInZone = startOfDay(zonedNow);
+  const todayUTC = new Date(startOfTodayInZone.getTime() - startOfTodayInZone.getTimezoneOffset() * 60000);
 
-  const existingReading = await repository.findByUserIdAndDate(data.userId, today);
+  const existingReading = await repository.findByUserIdAndDate(data.userId, todayUTC);
   if (existingReading) {
     const streakInfo = await repository.findStreakInfo(data.userId);
     throw {
@@ -53,8 +60,8 @@ export const registerDailyReadingUseCase = async (
   const milestones = [1, 5, 10, 30, 50, 70, 100];
 
   if (latestReading) {
-    const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
-    const daysDiff = differenceInDays(today, lastReadingDate);
+    const lastReadingDateInZone = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
+    const daysDiff = differenceInDays(startOfTodayInZone, lastReadingDateInZone);
 
     if (daysDiff === 1) {
       streak = latestReading.streak + 1;
@@ -89,8 +96,8 @@ export const registerDailyReadingUseCase = async (
 
   const newReading = await repository.create({
     ...data,
-    date: today,
-    readAt: new Date(),
+    date: todayUTC, // agora corretamente em UTC
+    readAt: new Date(), // UTC atual
     streak,
     life
   });
@@ -100,13 +107,101 @@ export const registerDailyReadingUseCase = async (
     streakInfo: {
       currentStreak: streak,
       lives: life,
-      lastReadingDate: today,
+      lastReadingDate: todayUTC,
       hasReadToday: true,
       streakActive: true,
       milestoneReached: milestones.includes(streak) ? streak : null
     }
   };
 };
+
+
+
+
+// export const registerDailyReadingUseCase = async (
+//   data: IDailyVerseReading,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   const user = await UserRepository.findUserById(data.userId);
+//   if (!user) {
+//     throw new Error('Usuário não encontrado');
+//   }
+
+//   // Ajuste para o fuso horário local
+//   const today = startOfDay(toZonedTime(new Date(), timeZone));
+
+//   const existingReading = await repository.findByUserIdAndDate(data.userId, today);
+//   if (existingReading) {
+//     const streakInfo = await repository.findStreakInfo(data.userId);
+//     throw {
+//       name: 'ReadingExistsError',
+//       message: 'Já existe um registro de leitura para esta data.',
+//       streakInfo,
+//       existingReadingId: existingReading.id
+//     };
+//   }
+
+//   const latestReading = await repository.findLatestByUserId(data.userId);
+
+//   let streak = 1;
+//   let life = latestReading?.life || 0;
+//   const milestones = [1, 5, 10, 30, 50, 70, 100];
+
+//   if (latestReading) {
+//     const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
+//     const daysDiff = differenceInDays(today, lastReadingDate);
+
+//     if (daysDiff === 1) {
+//       streak = latestReading.streak + 1;
+//     } else if (daysDiff > 1 && life > 0) {
+//       const neededLives = daysDiff - 1;
+//       if (neededLives <= life) {
+//         streak = latestReading.streak + 1;
+//         life -= neededLives;
+//       }
+//     }
+//   }
+
+//   if (milestones.includes(streak)) {
+//     life += 1;
+//   }
+
+//   if (user.role === 'dbv') {
+//     const dbvEvaluation = await IndividualEvaluationRepository.findActiveEvaluationByUser(data.userId);
+//     if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador");
+
+//     const updatedIndividualTotal = new Decimal(dbvEvaluation.totalScore || 0).plus(data.pointsEarned);
+//     await IndividualEvaluationRepository.updateEvaluation(dbvEvaluation.id, {
+//       totalScore: updatedIndividualTotal.toNumber(),
+//     });
+
+//     const existingRankingIndividual = await IndividualRankingRepository.findByUserAndWeek(data.userId, dbvEvaluation.week);
+//     if (existingRankingIndividual) {
+//       existingRankingIndividual.totalScore = updatedIndividualTotal.toNumber();
+//       await IndividualRankingRepository.updateRanking(existingRankingIndividual);
+//     }
+//   }
+
+//   const newReading = await repository.create({
+//     ...data,
+//     date: today,
+//     readAt: new Date(),
+//     streak,
+//     life
+//   });
+
+//   return {
+//     reading: newReading,
+//     streakInfo: {
+//       currentStreak: streak,
+//       lives: life,
+//       lastReadingDate: today,
+//       hasReadToday: true,
+//       streakActive: true,
+//       milestoneReached: milestones.includes(streak) ? streak : null
+//     }
+//   };
+// };
 
 
 
