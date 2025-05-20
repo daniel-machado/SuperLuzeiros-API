@@ -1,22 +1,27 @@
 import { IDailyVerseReadingRepository } from "../../../infrastructure/database/repositories/DailyVerseRepository";
 
-import {
-  startOfToday,
-  parseISO,
-  startOfDay,
-  differenceInDays,
-  differenceInCalendarDays,
-  isToday,
-  isYesterday,
-  format
-} from 'date-fns';
+// import {
+//   startOfToday,
+//   parseISO,
+//   startOfDay,
+//   differenceInDays,
+//   differenceInCalendarDays,
+//   isToday,
+//   isYesterday,
+//   format,
+
+// } from 'date-fns';
+
+import { startOfDay, differenceInDays, isToday, format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
+
+const timeZone = 'America/Sao_Paulo';
 
 export const getUserStreakInfoUseCase = async (
   userId: string,
   repository: IDailyVerseReadingRepository
 ) => {
   const latestReading = await repository.findLatestByUserId(userId);
-
 
   if (!latestReading) {
     return {
@@ -29,27 +34,22 @@ export const getUserStreakInfoUseCase = async (
     };
   }
 
-
-  const today = startOfToday();
-  const lastReadingDate = startOfDay(latestReading.date);
+  // Ajuste para o fuso horário local
+  const today = startOfDay(toZonedTime(new Date(), timeZone));
+  const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
   const daysDiff = differenceInDays(today, lastReadingDate);
-
 
   const hasReadToday = daysDiff === 0;
   const hasReadYesterday = daysDiff === 1;
-
 
   let currentStreak = latestReading.streak || 0;
   let lives = latestReading.life || 0;
   let streakActive = hasReadToday;
 
-
   if (!hasReadToday) {
     if (hasReadYesterday) {
-      // Leitura foi feita ontem (ainda pode manter o streak se ler hoje)
       streakActive = false;
     } else if (daysDiff > 1 && lives > 0) {
-      // Tentar recuperar streak com vidas
       const daysCanRecover = daysDiff - 1;
       if (daysCanRecover <= lives) {
         lives -= daysCanRecover;
@@ -65,22 +65,97 @@ export const getUserStreakInfoUseCase = async (
     }
   }
 
-
   return {
-    //currentStreak: streakActive ? currentStreak : 0,
-    currentStreak: currentStreak,
+    currentStreak,
     lives,
     lastReadingDate: latestReading.readAt,
     hasReadToday,
     streakActive,
     daysSinceLastReading: daysDiff,
-
-    //Infirmações adicionais para UI
-    formattedLastDate: format(lastReadingDate, 'PPpp'), // Formato bonito para exibição
+    formattedLastDate: format(lastReadingDate, 'PPpp'),
     isOnfire: streakActive && currentStreak >= 3,
     nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null
   };
 };
+
+
+// export const getUserStreakInfoUseCase = async (
+//   userId: string,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   const latestReading = await repository.findLatestByUserId(userId);
+
+
+//   if (!latestReading) {
+//     return {
+//       currentStreak: 0,
+//       lives: 0,
+//       lastReadingDate: null,
+//       hasReadToday: false,
+//       streakActive: false,
+//       daysSinceLastReading: null
+//     };
+//   }
+
+
+//   const today = startOfToday();
+//   const lastReadingDate = startOfDay(latestReading.date);
+//   const daysDiff = differenceInDays(today, lastReadingDate);
+
+//   const sToday = isToday(latestReading.date)
+
+//   console.log("Today", today)
+//     console.log("lastReading", lastReadingDate)
+//   console.log("dayDiff", daysDiff)
+ 
+//    console.log("data", latestReading.date)
+
+//   const hasReadToday = daysDiff === 0;
+//   const hasReadYesterday = daysDiff === 1;
+
+
+//   let currentStreak = latestReading.streak || 0;
+//   let lives = latestReading.life || 0;
+//   let streakActive = hasReadToday;
+
+
+//   if (!hasReadToday) {
+//     if (hasReadYesterday) {
+//       // Leitura foi feita ontem (ainda pode manter o streak se ler hoje)
+//       streakActive = false;
+//     } else if (daysDiff > 1 && lives > 0) {
+//       // Tentar recuperar streak com vidas
+//       const daysCanRecover = daysDiff - 1;
+//       if (daysCanRecover <= lives) {
+//         lives -= daysCanRecover;
+//         streakActive = true;
+//         currentStreak += 1;
+//       } else {
+//         currentStreak = 0;
+//         streakActive = false;
+//       }
+//     } else {
+//       currentStreak = 0;
+//       streakActive = false;
+//     }
+//   }
+
+
+//   return {
+//     //currentStreak: streakActive ? currentStreak : 0,
+//     currentStreak: currentStreak,
+//     lives,
+//     lastReadingDate: latestReading.readAt,
+//     hasReadToday,
+//     streakActive,
+//     daysSinceLastReading: daysDiff,
+
+//     //Infirmações adicionais para UI
+//     formattedLastDate: format(lastReadingDate, 'PPpp'), // Formato bonito para exibição
+//     isOnfire: streakActive && currentStreak >= 3,
+//     nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null
+//   };
+// };
 
 
 
