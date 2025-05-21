@@ -29,6 +29,7 @@ export const deleteAnswerUseCase = async (
 
   // Buscar avaliação individual
   const evaluation = await individualEvaluationRepository.getEvaluationById(answer.individualEvaluationId);
+  if (!evaluation) throw new Error("Avaliação não encontrada");
   const updatedIndividualTotal = new Decimal(evaluation.totalScore || 0).minus(answer.score).toDecimalPlaces(2);
 
   // Atualizar avaliação individual
@@ -41,6 +42,7 @@ export const deleteAnswerUseCase = async (
     evaluation.userId as string, 
     evaluation.week as number
   );
+  if (!existingRanking) throw new Error("Ranking não encontrado");
 
   if (existingRanking) {
     existingRanking.totalScore = updatedIndividualTotal.toNumber();
@@ -110,6 +112,7 @@ export const deleteAnswerUseCase = async (
     unitUser.unitId,
     answer.week
   );
+  if (!existingUnitRanking) throw new Error("Ranking da unidade não encontrado");
 
   if (existingUnitRanking) {
     existingUnitRanking.totalScore = updatedTotalScore.toNumber();

@@ -40,7 +40,7 @@ export const createAnswerUseCase = async (
   let score = 0;
 
   if (question.typeQuestion === 'yes_no') {
-    score = answer.toLowerCase() === 'yes' ? question.points : 0;
+    score = answer.toLowerCase() === 'sim' ? question.points : 0;
 
   } else if (question.typeQuestion === 'number' && answer) {
     const numericAnswer = parseInt(answer, 10);
@@ -78,6 +78,7 @@ export const createAnswerUseCase = async (
 
   // Atualizar ranking individual
   const existingRankingIndividual = await individualRankingRepository.findByUserAndWeek(userId, week);
+  if (!existingRankingIndividual) throw new Error("Ranking individual não encontrado");
   if (existingRankingIndividual) {
     existingRankingIndividual.totalScore = updatedIndividualTotal.toNumber();
     await individualRankingRepository.updateRanking(existingRankingIndividual);
