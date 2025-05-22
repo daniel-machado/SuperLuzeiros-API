@@ -49,7 +49,7 @@ export const registerDailyReadingUseCase = async (
 
   const latest = await repository.findLatestByUserId(data.userId);
   let streak = 1;
-  let life = 3;
+  let life = latest?.life || 0;
 
   if (latest) {
     const lastReadingDate = toZonedTime(new Date(latest.readAt), timeZone);
