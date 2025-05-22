@@ -17,17 +17,32 @@ export const getUserStreakInfoUseCase = async (
       lastReadingDate: null,
       hasReadToday: false,
       streakActive: false,
-      daysSinceLastReading: null
+      daysSinceLastReading: null,
+      formattedLastDate: null,
+      isOnFire: false,
+      nextMilestone: 1,
+      dateServer: new Date().toISOString(),
+      dateServerInZone: toZonedTime(new Date(), timeZone)
     };
   }
 
-  // Considerando que latestReading.date é do tipo DATEONLY (sem horário)
-  const todayInZone = startOfDay(toZonedTime(new Date(), timeZone));
-  const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
-  const daysDiff = differenceInDays(todayInZone, lastReadingDate);
+  // Data atual no fuso horário correto
+  const nowInZone = toZonedTime(new Date(), timeZone);
+  const startOfToday = startOfDay(nowInZone);
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setDate(endOfToday.getDate() + 1);
 
-  const hasReadToday = daysDiff === 0;
-  const streakActive = hasReadToday || (daysDiff === 1) || (daysDiff > 1 && latestReading.life >= (daysDiff - 1));
+  // Data da leitura (usando readAt, que tem horário completo)
+  const readingDateInZone = toZonedTime(new Date(latestReading.readAt), timeZone);
+  const startOfReadingDay = startOfDay(readingDateInZone);
+
+  const hasReadToday = readingDateInZone >= startOfToday && readingDateInZone < endOfToday;
+  const daysDiff = differenceInDays(startOfToday, startOfReadingDay);
+
+  const streakActive =
+    hasReadToday ||
+    daysDiff === 1 ||
+    (daysDiff > 1 && latestReading.life >= (daysDiff - 1));
 
   return {
     currentStreak: streakActive ? latestReading.streak : 0,
@@ -36,13 +51,83 @@ export const getUserStreakInfoUseCase = async (
     hasReadToday,
     streakActive,
     daysSinceLastReading: daysDiff,
-    formattedLastDate: format(lastReadingDate, 'PPPP'), // ex: terça-feira, 21 de maio de 2025
+    formattedLastDate: format(startOfReadingDay, 'PPPP'), // Ex: quarta-feira, 21 de maio de 2025
     isOnFire: hasReadToday && latestReading.streak >= 3,
     nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > latestReading.streak) || null,
     dateServer: new Date().toISOString(),
-    dateServerInZone: toZonedTime(new Date(), timeZone)
+    dateServerInZone: nowInZone
   };
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const getUserStreakInfoUseCase = async (
+//   userId: string,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   const latestReading = await repository.findLatestByUserId(userId);
+
+//   if (!latestReading) {
+//     return {
+//       currentStreak: 0,
+//       lives: 0,
+//       lastReadingDate: null,
+//       hasReadToday: false,
+//       streakActive: false,
+//       daysSinceLastReading: null
+//     };
+//   }
+
+//   // Considerando que latestReading.date é do tipo DATEONLY (sem horário)
+//   const todayInZone = startOfDay(toZonedTime(new Date(), timeZone));
+//   const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
+//   const daysDiff = differenceInDays(todayInZone, lastReadingDate);
+
+//   const hasReadToday = daysDiff === 0;
+//   const streakActive = hasReadToday || (daysDiff === 1) || (daysDiff > 1 && latestReading.life >= (daysDiff - 1));
+
+//   return {
+//     currentStreak: streakActive ? latestReading.streak : 0,
+//     lives: latestReading.life,
+//     lastReadingDate: latestReading.readAt,
+//     hasReadToday,
+//     streakActive,
+//     daysSinceLastReading: daysDiff,
+//     formattedLastDate: format(lastReadingDate, 'PPPP'), // ex: terça-feira, 21 de maio de 2025
+//     isOnFire: hasReadToday && latestReading.streak >= 3,
+//     nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > latestReading.streak) || null,
+//     dateServer: new Date().toISOString(),
+//     dateServerInZone: toZonedTime(new Date(), timeZone)
+//   };
+// };
 
 
 

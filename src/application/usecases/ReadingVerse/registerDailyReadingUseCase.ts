@@ -33,45 +33,45 @@ export const registerDailyReadingUseCase = async (
   data: IDailyVerseReading,
   repository: IDailyVerseReadingRepository
 ) => {
+
   const user = await UserRepository.findUserById(data.userId);
   if (!user) throw new Error('Usuário não encontrado');
 
-  // Normaliza a data atual para o início do dia no fuso de São Paulo
-  const zonedNow = toZonedTime(new Date(), timeZone);
-  const startOfTodayInZone = startOfDay(zonedNow);
+  const now = new Date();
+  const nowInZone = toZonedTime(now, timeZone);
+  const startOfToday = startOfDay(nowInZone);
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setDate(endOfToday.getDate() + 1);
 
-  // Como o campo 'date' no banco é DATEONLY, removemos o horário (mantemos apenas a data)
-  const todayDateOnly = startOfTodayInZone;
+  // Impede leitura duplicada no mesmo dia
+  const alreadyRegistered = await repository.findByUserIdAndDate(data.userId, now);
+  if (alreadyRegistered) return alreadyRegistered;
 
-  // Verifica se já há leitura para hoje
-  const existingReading = await repository.findByUserIdAndDate(data.userId, todayDateOnly);
-  if (existingReading) {
-    const streakInfo = await repository.findStreakInfo(data.userId);
-    throw {
-      name: 'ReadingExistsError',
-      message: 'Já existe um registro de leitura para esta data.',
-      streakInfo,
-      existingReadingId: existingReading.id
-    };
-  }
-
-  const latestReading = await repository.findLatestByUserId(data.userId);
+  const latest = await repository.findLatestByUserId(data.userId);
   let streak = 1;
-  let life = latestReading?.life || 0;
-  const milestones = [1, 5, 10, 30, 50, 70, 100];
+  let life = 3;
 
-  if (latestReading?.date) {
-    const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
-    const daysDiff = differenceInDays(startOfTodayInZone, lastReadingDate);
+  if (latest) {
+    const lastReadingDate = toZonedTime(new Date(latest.readAt), timeZone);
+    const lastDay = startOfDay(lastReadingDate);
+    const daysDiff = differenceInDays(startOfToday, lastDay);
 
     if (daysDiff === 1) {
-      streak = latestReading.streak + 1;
-    } else if (daysDiff > 1 && life >= (daysDiff - 1)) {
-      streak = latestReading.streak + 1;
-      life -= (daysDiff - 1);
+      streak = latest.streak + 1;
+      life = latest.life; // mantém as vidas
+    } else if (daysDiff > 1) {
+      const lostLives = daysDiff - 1;
+      const remainingLives = Math.max(latest.life - lostLives, 0);
+      life = remainingLives;
+      streak = remainingLives > 0 ? latest.streak + 1 : 1;
+    } else {
+      // leitura no mesmo dia ou leitura futura (não esperado)
+      streak = latest.streak;
+      life = latest.life;
     }
   }
 
+  const milestones = [1, 5, 10, 30, 50, 70, 100];
   if (milestones.includes(streak)) life += 1;
 
   // Se for DBV, atualiza pontuação individual
@@ -89,15 +89,14 @@ export const registerDailyReadingUseCase = async (
       existingRanking.totalScore = updatedScore.toNumber();
       await IndividualRankingRepository.updateRanking(existingRanking);
     }
-  }
-
-  // Cria nova leitura
+  } 
+  
   const newReading = await repository.create({
     ...data,
-    date: todayDateOnly, // apenas a data (sem hora)
-    readAt: new Date(),   // horário exato em UTC
     streak,
-    life
+    life,
+    readAt: now,
+    date: startOfToday // opcional: registrar a data do dia com hora zerada
   });
 
   return {
@@ -105,7 +104,7 @@ export const registerDailyReadingUseCase = async (
     streakInfo: {
       currentStreak: streak,
       lives: life,
-      lastReadingDate: todayDateOnly,
+      lastReadingDate: now,
       hasReadToday: true,
       streakActive: true,
       milestoneReached: milestones.includes(streak) ? streak : null,
@@ -114,6 +113,96 @@ export const registerDailyReadingUseCase = async (
     }
   };
 };
+
+
+
+
+
+// export const registerDailyReadingUseCase = async (
+//   data: IDailyVerseReading,
+//   repository: IDailyVerseReadingRepository
+// ) => {
+//   const user = await UserRepository.findUserById(data.userId);
+//   if (!user) throw new Error('Usuário não encontrado');
+
+//   // Normaliza a data atual para o início do dia no fuso de São Paulo
+//   const zonedNow = toZonedTime(new Date(), timeZone);
+//   const startOfTodayInZone = startOfDay(zonedNow);
+
+//   // Como o campo 'date' no banco é DATEONLY, removemos o horário (mantemos apenas a data)
+//   const todayDateOnly = startOfTodayInZone;
+
+//   // Verifica se já há leitura para hoje
+//   const existingReading = await repository.findByUserIdAndDate(data.userId, todayDateOnly);
+//   if (existingReading) {
+//     const streakInfo = await repository.findStreakInfo(data.userId);
+//     throw {
+//       name: 'ReadingExistsError',
+//       message: 'Já existe um registro de leitura para esta data.',
+//       streakInfo,
+//       existingReadingId: existingReading.id
+//     };
+//   }
+
+//   const latestReading = await repository.findLatestByUserId(data.userId);
+//   let streak = 1;
+//   let life = latestReading?.life || 0;
+//   const milestones = [1, 5, 10, 30, 50, 70, 100];
+
+//   if (latestReading?.date) {
+//     const lastReadingDate = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
+//     const daysDiff = differenceInDays(startOfTodayInZone, lastReadingDate);
+
+//     if (daysDiff === 1) {
+//       streak = latestReading.streak + 1;
+//     } else if (daysDiff > 1 && life >= (daysDiff - 1)) {
+//       streak = latestReading.streak + 1;
+//       life -= (daysDiff - 1);
+//     }
+//   }
+
+//   if (milestones.includes(streak)) life += 1;
+
+//   // Se for DBV, atualiza pontuação individual
+//   if (user.role === 'dbv') {
+//     const dbvEvaluation = await IndividualEvaluationRepository.findActiveEvaluationByUser(data.userId);
+//     if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador");
+
+//     const updatedScore = new Decimal(dbvEvaluation.totalScore || 0).plus(data.pointsEarned);
+//     await IndividualEvaluationRepository.updateEvaluation(dbvEvaluation.id, {
+//       totalScore: updatedScore.toNumber(),
+//     });
+
+//     const existingRanking = await IndividualRankingRepository.findByUserAndWeek(data.userId, dbvEvaluation.week);
+//     if (existingRanking) {
+//       existingRanking.totalScore = updatedScore.toNumber();
+//       await IndividualRankingRepository.updateRanking(existingRanking);
+//     }
+//   }
+
+//   // Cria nova leitura
+//   const newReading = await repository.create({
+//     ...data,
+//     date: todayDateOnly, // apenas a data (sem hora)
+//     readAt: new Date(),   // horário exato em UTC
+//     streak,
+//     life
+//   });
+
+//   return {
+//     reading: newReading,
+//     streakInfo: {
+//       currentStreak: streak,
+//       lives: life,
+//       lastReadingDate: todayDateOnly,
+//       hasReadToday: true,
+//       streakActive: true,
+//       milestoneReached: milestones.includes(streak) ? streak : null,
+//       dateServer: new Date().toISOString(),
+//       dateServerInZone: toZonedTime(new Date(), timeZone)
+//     }
+//   };
+// };
 
 
 
