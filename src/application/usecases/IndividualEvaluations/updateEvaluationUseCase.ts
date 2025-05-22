@@ -31,26 +31,26 @@ export const updateEvaluationUseCase = async (
       throw new Error("Avaliação não encontrada.");
     }
 
-    // Buscar os pontos das respostas adicionais da semana da avaliação
-    const answers = await individualEvaluationAnswerRepository.findAllToWeek(
-      existingEvaluation.userId as string,
-      existingEvaluation.week as number
-    );
-     // Calcular os pontos adicionais com validação
-    const additionalPoints = answers.reduce((sum, ans) => sum + (Number(ans.score) || 0), 0);
-     // Atualizar o totalScore
-    data.totalScore = additionalPoints;
+    // // Buscar os pontos das respostas adicionais da semana da avaliação
+    // const answers = await individualEvaluationAnswerRepository.findAllToWeek(
+    //   existingEvaluation.userId as string,
+    //   existingEvaluation.week as number
+    // );
+    //  // Calcular os pontos adicionais com validação
+    // const additionalPoints = answers.reduce((sum, ans) => sum + (Number(ans.score) || 0), 0);
+    //  // Atualizar o totalScore
+    // data.totalScore = additionalPoints;
     
     // Atualizar a avaliação com os dados fornecidos
     const updatedEvaluation = await individualEvaluationRepository.updateEvaluation(id, data);
 
-    // // Atualizar o ranking
-    await updateIndividualRankingUseCase(
-      updatedEvaluation.userId as string,
-      updatedEvaluation.week as number,
-      updatedEvaluation.totalScore as number,
-      inidividualRankingRepository
-    );
+    // // // Atualizar o ranking
+    // await updateIndividualRankingUseCase(
+    //   updatedEvaluation.userId as string,
+    //   updatedEvaluation.week as number,
+    //   updatedEvaluation.totalScore as number,
+    //   inidividualRankingRepository
+    // );
 
     return updatedEvaluation;
   } catch (error: any) {

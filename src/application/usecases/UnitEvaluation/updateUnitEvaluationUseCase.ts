@@ -25,33 +25,33 @@ export const updateUnitEvaluationUseCase = async (
       throw new Error("Avaliação não encontrada.");
     }
     
-    // Se `examScore` foi enviado, recalcular `totalScore`
-    if (data.examScore !== undefined) {
-      const examScore = Number(data.examScore);
-      const validExamScore = isNaN(examScore) || examScore < 0 ? 0 : examScore;
+    // // Se `examScore` foi enviado, recalcular `totalScore`
+    // if (data.examScore !== undefined) {
+    //   const examScore = Number(data.examScore);
+    //   const validExamScore = isNaN(examScore) || examScore < 0 ? 0 : examScore;
 
-      // Buscar os pontos das respostas adicionais da semana da avaliação
-      const answers = await unitEvaluationAnswerRepository.findAllToWeek(
-        existingEvaluation.unitId as string,
-        existingEvaluation.week as number
-      );
+    //   // Buscar os pontos das respostas adicionais da semana da avaliação
+    //   const answers = await unitEvaluationAnswerRepository.findAllToWeek(
+    //     existingEvaluation.unitId as string,
+    //     existingEvaluation.week as number
+    //   );
       
-      // Calcular os pontos adicionais com validação
-      const additionalPoints = answers.reduce((sum, ans) => sum + (Number(ans.score) || 0), 0);
+    //   // Calcular os pontos adicionais com validação
+    //   const additionalPoints = answers.reduce((sum, ans) => sum + (Number(ans.score) || 0), 0);
       
-      // Atualizar o totalScore
-      data.totalScore = validExamScore + additionalPoints;
-    } else if (data.totalScore === undefined) {
-      // Se não for fornecido examScore, garantir que o totalScore seja mantido ou calculado
-      const answers = await unitEvaluationAnswerRepository.findAllToWeek(
-        existingEvaluation.unitId as string,
-        existingEvaluation.week as number
-      );
-      const additionalPoints = answers.reduce((sum, ans) => sum + (Number(ans.score) || 0), 0);
+    //   // Atualizar o totalScore
+    //   data.totalScore = validExamScore + additionalPoints;
+    // } else if (data.totalScore === undefined) {
+    //   // Se não for fornecido examScore, garantir que o totalScore seja mantido ou calculado
+    //   const answers = await unitEvaluationAnswerRepository.findAllToWeek(
+    //     existingEvaluation.unitId as string,
+    //     existingEvaluation.week as number
+    //   );
+    //   const additionalPoints = answers.reduce((sum, ans) => sum + (Number(ans.score) || 0), 0);
 
-      // Caso não tenha examScore, manter o totalScore apenas com as respostas adicionais
-      data.totalScore = additionalPoints;
-    }
+    //   // Caso não tenha examScore, manter o totalScore apenas com as respostas adicionais
+    //   data.totalScore = additionalPoints;
+    // }
 
     // Atualizar a avaliação com os dados fornecidos
     const updatedEvaluation = await unitEvaluationRepository.updateUnitEvaluation(id, data);

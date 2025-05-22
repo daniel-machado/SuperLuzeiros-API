@@ -50,7 +50,7 @@ router.get('/evaluations-actives',
 ); 
 
 // Update evaluation
-router.put('/update/:id', 
+router.patch('/update/:id', 
   authenticate,
   authorize(['admin', 'director', 'counselor']),
   IndividualEvaluationController.updateEvaluation
