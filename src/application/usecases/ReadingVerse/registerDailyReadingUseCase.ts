@@ -32,6 +32,8 @@ export const registerDailyReadingUseCase = async (
   data: IDailyVerseReading,
   repository: IDailyVerseReadingRepository
 ) => {
+
+  // 1 - Ver se o usuário existe
   const user = await UserRepository.findUserById(data.userId);
   if (!user) {
     throw new Error('Usuário não encontrado');
@@ -56,6 +58,7 @@ export const registerDailyReadingUseCase = async (
     };
   }
 
+  // Recupera a última leitura para cálculo de Streak e Vida
   const latestReading = await repository.findLatestByUserId(data.userId);
 
   let streak = 1;
@@ -63,7 +66,9 @@ export const registerDailyReadingUseCase = async (
   const milestones = [1, 5, 10, 30, 50, 70, 100];
 
   if (latestReading) {
-    const lastReadingDateInZone = startOfDay(toZonedTime(new Date(latestReading.date), timeZone));
+    const lastReadingDateInZone = startOfDay(
+      toZonedTime(new Date(latestReading.date ?? 0), timeZone)
+    );
     const daysDiff = differenceInDays(startOfTodayInZone, lastReadingDateInZone);
 
     if (daysDiff === 1) {
@@ -97,6 +102,7 @@ export const registerDailyReadingUseCase = async (
     }
   }
 
+  // Cria nova leitura
   const newReading = await repository.create({
     ...data,
     date: todayUTC, // agora corretamente em UTC

@@ -9,7 +9,10 @@ import { DailyVerseReadingRepository } from '../../infrastructure/database/repos
 import { registerDailyReadingUseCase } from '../../application/usecases/ReadingVerse/registerDailyReadingUseCase';
 import { getUserStreakInfoUseCase } from '../../application/usecases/ReadingVerse/getUserStreakInfoUseCase';
 import { getUserReadingHistoryUseCase } from '../../application/usecases/ReadingVerse/getUserReadingHistoryUseCase';
+import { startOfDay, toDate } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
+const timeZone = 'America/Sao_Paulo';
 
 export const dailyReadingController = {
   /**
@@ -33,26 +36,25 @@ export const dailyReadingController = {
       });
       return;
     }
- 
+
+    const todayInZone = startOfDay(toZonedTime(new Date(), timeZone));
+    const todayUTC = toDate(todayInZone)
+
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-     
       const readingData = {
         userId,
         book,
         chapter,
         verse,
         pointsEarned,
-        date: today,
-        readAt: new Date(),
         life: 0,
-        streak: 0
+        streak: 0,
+        date: todayInZone,
+        readAt: todayUTC
+
       };
 
-
       const result = await registerDailyReadingUseCase(readingData, DailyVerseReadingRepository);
-
 
       res.status(201).json({
         success: true,

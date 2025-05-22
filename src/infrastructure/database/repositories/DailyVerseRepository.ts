@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { IDailyVerseReading, DailyVerseReading } from '../models/dailyVerseReading';
 import { User } from '../models';
-import { format } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 
 export interface IDailyVerseReadingRepository {
   create(data: IDailyVerseReading): Promise<IDailyVerseReading>;
@@ -38,12 +38,18 @@ export const DailyVerseReadingRepository: IDailyVerseReadingRepository = {
   },
 
   findByUserIdAndDate: async (userId: string, date: Date): Promise<IDailyVerseReading | null> => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    console.log(dateStr)
+    const startOfDayDate = startOfDay(date);
+    const endOfDayDate = new Date(startOfDayDate);
+
+    endOfDayDate.setDate(endOfDayDate.getDate() + 1);
+
     return await DailyVerseReading.findOne({
       where: {
         userId,
-        date: dateStr
+        date: {
+          [Op.gte]: startOfDayDate,
+          [Op.lt]: endOfDayDate
+        }
       },
       include: [{
         model: User,

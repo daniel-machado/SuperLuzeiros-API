@@ -37,48 +37,32 @@ export const getUserStreakInfoUseCase = async (
   // Ajuste para o fuso horário local
   const today = startOfDay(toZonedTime(new Date(), timeZone));
   const lastReadingDate = startOfDay(
-    toZonedTime(new Date(latestReading.createdAt ?? Date.now()), timeZone)
+    toZonedTime(new Date(latestReading.date), timeZone)
   );
   const daysDiff = differenceInDays(today, lastReadingDate);
 
   const hasReadToday = daysDiff === 0;
-  const hasReadYesterday = daysDiff === 1;
+  const currentStreak = latestReading.streak || 0;
+  const lives = latestReading.life || 0;
+ 
 
-  let currentStreak = latestReading.streak || 0;
-  let lives = latestReading.life || 0;
-  let streakActive = hasReadToday;
+  const isOnFire = hasReadToday && currentStreak >= 3;
+  const nextMilestone = [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null;
 
-  if (!hasReadToday) {
-    if (hasReadYesterday) {
-      streakActive = false;
-    } else if (daysDiff > 1 && lives > 0) {
-      const daysCanRecover = daysDiff - 1;
-      if (daysCanRecover <= lives) {
-        lives -= daysCanRecover;
-        streakActive = true;
-        currentStreak += 1;
-      } else {
-        currentStreak = 0;
-        streakActive = false;
-      }
-    } else {
-      currentStreak = 0;
-      streakActive = false;
-    }
-  }
+  const streakActive = hasReadToday || (daysDiff === 1) || (daysDiff > 1 && lives >= (daysDiff - 1));
 
   return {
-    currentStreak,
+    currentStreak: streakActive ? currentStreak : 0,
     lives,
     lastReadingDate: latestReading.readAt,
     hasReadToday,
     streakActive,
     daysSinceLastReading: daysDiff,
     formattedLastDate: format(lastReadingDate, 'PPpp'),
-    isOnfire: streakActive && currentStreak >= 3,
-    nextMilestone: [1, 5, 10, 30, 50, 70, 100].find(m => m > currentStreak) || null,
+    isOnFire,
+    nextMilestone,
     dateServer: new Date().toISOString(),
-      dateServer2: toZonedTime(new Date(), 'America/Sao_Paulo')
+    dateServer2: toZonedTime(new Date(), timeZone)
   };
 };
 
