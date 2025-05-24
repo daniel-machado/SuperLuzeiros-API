@@ -62,21 +62,22 @@ export const dailyReadingController = {
         data: result
       });
     } catch (error: any) {
-      if (error.name === 'ReadingExistsError') {
-        res.status(400).json({
-          success: false,
-          error: error.message,
-          streakInfo: error.streakInfo,
-          existingReadingId: error.existingReadingId
-        });
-      } else {
-        console.error('Erro no registro da leitura:', error);
-        res.status(500).json({
-          success: false,
-          error: 'Erro interno no servidor',
-          details: error.message
-        });
-      }  
+      res.status(400).json({ success: false, error: error.message });
+      // if (error.name === 'ReadingExistsError') {
+      //   res.status(400).json({
+      //     success: false,
+      //     error: error.message,
+      //     streakInfo: error.streakInfo,
+      //     existingReadingId: error.existingReadingId
+      //   });
+      // } else {
+      //   console.error('Erro no registro da leitura:', error);
+      //   res.status(500).json({
+      //     success: false,
+      //     error: 'Erro interno no servidor',
+      //     details: error.message
+      //   });
+      // }  
     }
   },
 

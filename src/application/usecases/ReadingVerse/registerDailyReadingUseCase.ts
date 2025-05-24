@@ -45,7 +45,15 @@ export const registerDailyReadingUseCase = async (
 
   // Impede leitura duplicada no mesmo dia
   const alreadyRegistered = await repository.findByUserIdAndDate(data.userId, now);
-  if (alreadyRegistered) return alreadyRegistered;
+  //if (alreadyRegistered) return alreadyRegistered;
+  if (alreadyRegistered) {
+    throw {
+      name: 'ReadingExistsError',
+      message: 'Já existe um registro de leitura para esta data.',
+    };
+  }
+
+
 
   const latest = await repository.findLatestByUserId(data.userId);
   let streak = 1;
@@ -77,7 +85,7 @@ export const registerDailyReadingUseCase = async (
   // Se for DBV, atualiza pontuação individual
   if (user.role === 'dbv') {
     const dbvEvaluation = await IndividualEvaluationRepository.findActiveEvaluationByUser(data.userId);
-    if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador, fale com seu conselheiro");
+    if (!dbvEvaluation) throw new Error("Não há avaliação ativa para você, fale com seu conselheiro");
 
     const updatedScore = new Decimal(dbvEvaluation.totalScore || 0).plus(data.pointsEarned);
     await IndividualEvaluationRepository.updateEvaluation(dbvEvaluation.id, {
