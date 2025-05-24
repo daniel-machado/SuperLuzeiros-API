@@ -77,7 +77,7 @@ export const registerDailyReadingUseCase = async (
   // Se for DBV, atualiza pontuação individual
   if (user.role === 'dbv') {
     const dbvEvaluation = await IndividualEvaluationRepository.findActiveEvaluationByUser(data.userId);
-    if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador");
+    if (!dbvEvaluation) throw new Error("Não há avaliação ativa para esse desbravador, fale com seu conselheiro");
 
     const updatedScore = new Decimal(dbvEvaluation.totalScore || 0).plus(data.pointsEarned);
     await IndividualEvaluationRepository.updateEvaluation(dbvEvaluation.id, {
