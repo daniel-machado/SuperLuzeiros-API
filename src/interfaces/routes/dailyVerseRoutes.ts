@@ -18,13 +18,11 @@ router.post('/register',
   dailyReadingController.registerReading
 ); 
 
-
 // Rota para obter informações do streak atual do usuário
 router.get('/streak/:userId', 
   authenticate,
   dailyReadingController.getUserStreakInfo
 ); 
-
 
 // Rota para obter o histórico de leituras do usuário
 router.get('/history/:userId', 
