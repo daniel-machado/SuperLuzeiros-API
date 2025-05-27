@@ -53,7 +53,7 @@ router.put('/approve/user/:userId/specialty/:specialtyId',
   authorize(['admin', 'director', 'counselor', 'lead']),
   SpecialtyUserController.approve
 );
-router.put('/reject/user/:userId/specialty/:specialtyId',
+router.patch('/reject/user/:userId/specialty/:specialtyId',
   authenticate,
   authorize(['admin', 'director', 'counselor', 'lead']),
   SpecialtyUserController.reject

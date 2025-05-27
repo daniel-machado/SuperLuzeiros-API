@@ -33,7 +33,7 @@ export const rejectedSpecialtyUserUseCase = async (
 
   const user = await userRepository.findUserById(userIdRejected);
   const approverRole = user?.role as string;
-  if (approverRole !== "director" && approverRole !== "lead" && approverRole !== "counselor") {
+  if (approverRole !== "director" && approverRole !== "lead" && approverRole !== "counselor" && approverRole !== "admin") {
     throw new Error("Usuário não autorizado para Reprovar");
   }
   
