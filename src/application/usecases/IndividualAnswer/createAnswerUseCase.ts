@@ -46,7 +46,7 @@ export const createAnswerUseCase = async (
     const numericAnswer = parseInt(answer, 10);
     if (numericAnswer >= 1 && numericAnswer <= 5) {
       const percentage = numericAnswer * 0.2; // 1 = 20%, ..., 5 = 100%
-      score = question.points * percentage;
+      score = Math.round(question.points * percentage);
     }
 
   } else if (question.typeQuestion === 'text' && answer.trim() !== '') {
