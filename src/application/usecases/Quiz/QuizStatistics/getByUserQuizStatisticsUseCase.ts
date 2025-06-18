@@ -6,7 +6,7 @@ export const getByUserQuizStatisticsUseCase = async (
   quizStatisticsRepository: IQuizStatisticsRepository, 
 ) => {
 
-  const stats = await quizStatisticsRepository.findByUser(userId);
+  const stats = await quizStatisticsRepository.findByUserWithQuizDetails(userId);
   if (!stats) throw new Error('Estatística não encontrada.');
 
   return {

@@ -9,19 +9,20 @@ export const createQuizStatisticsUseCase = async (
   const {userId, quizId} = data;
 
   const existingStatistics = await quizStatisticsRepository.findByUserAndQuiz(userId, quizId);
+
   if (existingStatistics) {
-    // Atualizar estatísticas existentes
-    const newAttempts = (existingStatistics.attempts || 0) + 1;
+    const previousAttempts = existingStatistics.attempts || 0;
+    const newAttempts = previousAttempts + 1;
     const newBestScore = Math.max(existingStatistics.bestScore || 0, score);
-    const newAverageScore = ((existingStatistics.averageScore || 0) * (newAttempts - 1) + score) / newAttempts;
+    const newAverageScore = ((existingStatistics.averageScore || 0) * previousAttempts + score) / newAttempts;
 
     await quizStatisticsRepository.update(existingStatistics.id as string, {
       attempts: newAttempts,
       bestScore: newBestScore,
       averageScore: newAverageScore,
+      updatedAt: new Date(),
     });
-  } else {
-    // Criar estatísticas novas
+    } else {
     await quizStatisticsRepository.create({
       userId,
       quizId,
@@ -32,5 +33,6 @@ export const createQuizStatisticsUseCase = async (
       updatedAt: new Date(),
     });
   }
+
   
 }

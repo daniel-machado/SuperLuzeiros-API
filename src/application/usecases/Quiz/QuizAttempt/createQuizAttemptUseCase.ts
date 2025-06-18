@@ -1,4 +1,4 @@
-import { IQuizAnswerRepository } from '../../../../infrastructure/database/repositories/QuizAnswerRepository';
+import { IQuizAnswerRepository, QuizAnswerRepository } from '../../../../infrastructure/database/repositories/QuizAnswerRepository';
 import { IQuizUserAttempt } from '../../../../infrastructure/database/models/QuizUserAttempt'; 
 import { IQuizUserAttemptRepository } from '../../../../infrastructure/database/repositories/QuizUserAttemptRepository';
 import { StatusQuiz } from '../../../../infrastructure/ENUMS/StatusQuiz';
@@ -6,6 +6,9 @@ import { createQuizStatisticsUseCase } from '../QuizStatistics/createQuizStatist
 import { QuizStatisticsRepository } from '../../../../infrastructure/database/repositories/QuizStatisticsRepository';
 import { IUserSpecialtyRepository } from '../../../../infrastructure/database/repositories/UserSpecialtyRepository';
 import { IQuizRepository } from '../../../../infrastructure/database/repositories/QuizRepository';
+import { createQuizDetailedAttemptUseCase } from '../../../../application/usecases/QuizDetailedAttempt/createQuizDetailedAttemptUseCase';
+import { QuizUserDetailedAttemptRepository } from '../../../../infrastructure/database/repositories/QuizUserDetailedAttemptRepository';
+import { QuizQuestionRepository } from '../../../../infrastructure/database/repositories/QuizQuestionRepository';
 
 export const createQuizAttemptUseCase = async (
   data: IQuizUserAttempt,
@@ -16,6 +19,7 @@ export const createQuizAttemptUseCase = async (
   quizRepository: IQuizRepository
 ) => {
 
+  
   // Obtém as tentativas do usuário e pega a última
   const attemptExisting = await quizAttemptRepository.findAttempts(data.userId, data.quizId);
   if (attemptExisting) {
@@ -74,6 +78,18 @@ export const createQuizAttemptUseCase = async (
 
   // Atualiza estatísticas do quiz
   createQuizStatisticsUseCase({ userId, quizId }, score, QuizStatisticsRepository);
+
+  // Cria o registro detalhado da tentativa
+await createQuizDetailedAttemptUseCase(
+  newAttempt,
+  answers,
+  QuizUserDetailedAttemptRepository,
+  quizRepository,
+  QuizQuestionRepository,
+  QuizAnswerRepository,
+  QuizStatisticsRepository
+);
+
 
   // Busca quiz e especialidade
   const quiz = await quizRepository.findById(quizId);

@@ -12,6 +12,7 @@ import { getAllQuizAttemptsUseCase } from '../../application/usecases/Quiz/QuizA
 import { getUserAttemptsUseCase } from '../../application/usecases/Quiz/QuizAttempt/getUserAttemptsUseCase';
 import { getByIdAttemptUseCase } from '../../application/usecases/Quiz/QuizAttempt/getByIdAttemptUseCase';
 import { updateQuizAttemptsUseCase } from '../../application/usecases/Quiz/QuizAttempt/updateQuizAttemptUseCase';
+import { getAttemptByUserIdUseCase } from '../../application/usecases/Quiz/QuizAttempt/getAttemptByUserIdUseCase';
 
 
 export const quizAttemptController = {
@@ -69,6 +70,20 @@ export const quizAttemptController = {
     try {
       const result = await getUserAttemptsUseCase(userId, quizId, QuizUserAttemptRepository);
       res.status(201).json({
+        success: true,
+        message: 'Todas as tentativas do Usuário e Quiz',
+        result
+    });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+    async getUserAttemptsById(req: Request, res: Response): Promise<void>  {
+    const { userId } = req.params;
+    try {
+      const result = await getAttemptByUserIdUseCase(userId, QuizUserAttemptRepository);
+      res.status(200).json({
         success: true,
         message: 'Todas as tentativas do Usuário',
         result

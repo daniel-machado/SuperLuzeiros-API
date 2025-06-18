@@ -7,7 +7,9 @@ export interface IQuizUserAttemptRepository {
   findAll(): Promise<IQuizUserAttempt[] | null>;
   findById(id: string): Promise<IQuizUserAttempt | null>;
   findAttempts(userId: string, quizId: string): Promise<IQuizUserAttempt | null>;
-  
+
+  findAttemptsByUserId(userId: string): Promise<IQuizUserAttempt[] | null>;
+
   update(id: string, data: Partial<IQuizUserAttempt>): Promise<IQuizUserAttempt>;
   delete(id: string): Promise<IQuizUserAttempt>;
 }
@@ -28,9 +30,14 @@ export const QuizUserAttemptRepository = {
     return await QuizUserAttempt.findOne({ where: { id } });
   },
 
-  // Todas as tentativa de um user pegando pelo ID
+  // Todas as tentativa de um user pegando pelo ID do user e Quiz
   findAttempts: async (userId: string, quizId: string): Promise<IQuizUserAttempt | null> =>{
     return await QuizUserAttempt.findOne({ where: { userId, quizId } });
+  },
+
+    // Todas as tentativa de um user pegando pelo ID do user
+  findAttemptsByUserId: async (userId: string): Promise<IQuizUserAttempt[] | null> =>{
+    return await QuizUserAttempt.findAll({ where: { userId } });
   },
 
   // Atualizar tentativa

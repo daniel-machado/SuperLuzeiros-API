@@ -29,50 +29,50 @@ router.delete('/delete/:id',
 // 🟠 Rotas para listar estatísticas
 router.get('/list-all', 
   authenticate,
-  authorize(['admin', 'director']),
+  // authorize(['admin', 'director']),
   quizStatisticsController.getAll
 );
 
 router.get('/by-id/:id', 
   authenticate,
-  authorize(['admin', 'director', 'counselor', 'dbv']),
+  // authorize(['admin', 'director', 'counselor', 'dbv']),
   quizStatisticsController.getById
 );
 
 router.get('/by-quiz/:quizId', 
   authenticate,
-  authorize(['admin', 'director', 'counselor', 'dbv']),
+  // authorize(['admin', 'director', 'counselor', 'dbv']),
   quizStatisticsController.getByQuiz
 );
 
 router.get('/by-user-and-quiz/:userId/:quizId', 
   authenticate,
-  authorize(['admin', 'director', 'counselor', 'dbv']),
+  // authorize(['admin', 'director', 'counselor', 'dbv']),
   quizStatisticsController.getByUserAndQuiz
 );
 
 router.get('/by-user/:userId', 
   authenticate,
-  authorize(['admin', 'director', 'counselor', 'dbv']),
+  //authorize(['admin', 'director', 'counselor', 'dbv']),
   quizStatisticsController.getByUser
 );
 
 // 🟡 Rotas para estatísticas avançadas
 router.get('/average-score', 
   authenticate,
-  authorize(['admin', 'director', 'counselor', 'dbv']),
+  // authorize(['admin', 'director', 'counselor', 'dbv']),
   quizStatisticsController.getAverageScore
 );
 
 router.get('/pass-rate', 
   authenticate,
-  authorize(['admin', 'director', 'counselor', 'dbv']),
+  // authorize(['admin', 'director', 'counselor', 'dbv']),
   quizStatisticsController.getPassRate
 );
 
 router.get('/total-attempt/:quizId', 
   authenticate,
-  authorize(['admin', 'director', 'counselor', 'dbv']),
+  // authorize(['admin', 'director', 'counselor', 'dbv']),
   quizStatisticsController.getTotalAttempt
 );
 

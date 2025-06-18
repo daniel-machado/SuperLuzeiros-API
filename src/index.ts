@@ -42,6 +42,8 @@ import quizAnswerRoutes from './interfaces/routes/quizAnswerRoutes';
 import quizAttemptRoutes from './interfaces/routes/quizAttemptRoutes';
 import quizStatisticsRoutes from './interfaces/routes/quizStatisticsRoutes';
 
+import quizDetailedAttemptRoutes from './interfaces/routes/QuizDetailedAttemptRoutes';
+
 // BIblical
 import biblicalCapitulosRoutes from './interfaces/routes/biblicalCapitulosRoutes'
 
@@ -124,11 +126,12 @@ sequelize.authenticate().then(() => {
     app.use('/api/quiz-user-attempt', quizAttemptRoutes);
     app.use('/api/quiz-statistics', quizStatisticsRoutes);
 
+    app.use('/api/quiz-detailed-attempt', quizDetailedAttemptRoutes);
+
     app.use('/api/bible', biblicalCapitulosRoutes);
 
     app.use('/api/daily-reading', dailyVerseRoutes);
 
-    
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on http://localhost:${PORT}`);
     });

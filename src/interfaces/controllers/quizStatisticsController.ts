@@ -115,12 +115,20 @@ export const quizStatisticsController = {
   async getByUser(req: Request, res: Response): Promise<void>  {
     const { userId } = req.params;
     try {
-      const result = await getByUserQuizStatisticsUseCase(userId, QuizStatisticsRepository)
-      res.status(201).json({
-        success: true,
-        message: 'Estatística de um user',
-        result
-      });
+      const stats = await getByUserQuizStatisticsUseCase(userId, QuizStatisticsRepository)
+      res.status(200).json({
+      success: true,
+      message: "Estatísticas do usuário com detalhes dos quizzes",
+      result: {
+        stats,
+        summary: {
+          totalQuizzes: stats.stats.length,
+          totalAttempts: stats.stats.reduce((sum, stat) => sum + (stat.attempts ?? 0), 0),
+          averageScore: stats.stats.reduce((sum, stat) => sum + (stat.averageScore ?? 0), 0) / stats.stats.length,
+          bestOverallScore: Math.max(...stats.stats.map(stat => stat.bestScore ?? 0))
+        }
+      }
+    });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -154,6 +162,7 @@ export const quizStatisticsController = {
     }
   },
   
+  // Retorna a soma do total de tentativas de um quiz específico
   async getTotalAttempt(req: Request, res: Response): Promise<void> {
     const { quizId } = req.params;         
     const { userId } = req.query;
