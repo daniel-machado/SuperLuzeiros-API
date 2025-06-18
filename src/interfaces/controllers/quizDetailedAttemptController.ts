@@ -1,4 +1,4 @@
-// infrastructure/controllers/QuizDetailedAttemptController.ts
+// infrastructure/controllers/quizDetailedAttemptController.ts
 import { Request, Response } from 'express';
 import { createQuizDetailedAttemptUseCase } from '../../application/usecases/QuizDetailedAttempt/createQuizDetailedAttemptUseCase';
 import { QuizUserDetailedAttemptRepository } from '../../infrastructure/database/repositories/QuizUserDetailedAttemptRepository';
