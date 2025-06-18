@@ -42,7 +42,8 @@ import quizAnswerRoutes from './interfaces/routes/quizAnswerRoutes';
 import quizAttemptRoutes from './interfaces/routes/quizAttemptRoutes';
 import quizStatisticsRoutes from './interfaces/routes/quizStatisticsRoutes';
 
-import quizDetailedAttemptRoutes from './interfaces/routes/quizDetailedAttemptRoutes';
+import quizDetailedAttemptRoutes from './interfaces/routes/quizDetailedAttemptRoutes.ts'
+
 // BIblical
 import biblicalCapitulosRoutes from './interfaces/routes/biblicalCapitulosRoutes'
 

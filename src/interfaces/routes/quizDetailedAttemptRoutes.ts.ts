@@ -3,7 +3,7 @@ import express, { Router } from 'express';
 
 import { authenticate } from '../../interfaces/middlewares/authMiddleware';
 import { authorize } from '../../interfaces/middlewares/AuthorizeMiddleware';
-import { quizDetailedAttemptController } from '../../interfaces/controllers/quizDetailedAttemptController'
+import {quizDetailedAttemptController} from '../../interfaces/controllers/quizDetailedAttemptController'
 
 const router: Router = express.Router();
 
