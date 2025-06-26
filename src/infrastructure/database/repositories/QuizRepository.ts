@@ -89,7 +89,7 @@ export const QuizRepository = {
         {
           model: Specialty,
           as: 'specialty',
-          attributes: ['id', 'name', 'description']
+          attributes: ['id', 'name', 'emblem']
         },
         {
           model: QuizQuestion,
