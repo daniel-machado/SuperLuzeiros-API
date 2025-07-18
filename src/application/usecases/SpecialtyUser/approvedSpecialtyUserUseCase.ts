@@ -80,7 +80,7 @@ export const approvedSpecialtyUserUseCase = async (
       const userInUnit = await unitRepository.existeDBVOtherUnit(userId);
       if (!userInUnit) throw new Error("DBV não está alocado em nenhuma unidade");
 
-      const pointsSpecialtyUser = 50;
+      const pointsSpecialtyUser = 30;
       const pointsSpecialtyUnit = 10;
 
       const evaluation = await individualEvaluationRepository.findActiveEvaluationByUser(userId);
